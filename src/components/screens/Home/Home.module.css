@@ -1,0 +1,117 @@
+.card {
+  height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-size: cover;
+  background-position: center;
+}
+
+.title {
+  font-family:
+    Greycliff CF,
+    sans-serif;
+  font-weight: 900;
+  color: var(--mantine-color-white);
+  line-height: 1.2;
+  font-size: rem(32px);
+  margin-top: var(--mantine-spacing-xs);
+}
+
+.category {
+  color: var(--mantine-color-balck);
+  opacity: 0.7;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+
+.container {
+  height: calc(100vh - 150px);
+  padding-top: calc(var(--mantine-spacing-xl));
+  padding-right: calc(var(--mantine-spacing-xl) * 3);
+  padding-left: calc(var(--mantine-spacing-xl) * 3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 1;
+  position: absolute;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    padding-top: calc((100vh - 150px)*0.20);
+    padding-right: calc(var(--mantine-spacing-md) * 3);
+    padding-left: calc(var(--mantine-spacing-md) * 3);  }
+}
+
+.main_title {
+  color: var(--mantine-color-white);
+  font-size: rem(60px);
+  font-weight: 900;
+  line-height: 1.1;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    font-size: rem(40px);
+    line-height: 1.2;
+  }
+
+  @media (max-width: $mantine-breakpoint-xs) {
+    font-size: rem(28px);
+    line-height: 1.3;
+  }
+}
+
+.description {
+  color: var(--mantine-color-white);
+  max-width: rem(600px);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    max-width: 100%;
+    font-size: var(--mantine-font-size-sm);
+  }
+}
+
+.control {
+  margin-top: calc(var(--mantine-spacing-xl) * 1.5);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    width: 100%;
+  }
+}
+
+.section_wrapper {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--mantine-spacing-xl));
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    flex-direction: column-reverse;
+    padding: var(--mantine-spacing-sm);
+  }
+}
+
+.section_image {
+  max-width: 40%;
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    max-width: 100%;
+  }
+}
+
+.section_body {
+  padding-right: calc(var(--mantine-spacing-xl) * 4);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    padding-right: 0;
+    margin-top: var(--mantine-spacing-sm);
+  }
+}
+
+.section_title {
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+  font-family:
+    Greycliff CF,
+    var(--mantine-font-family);
+  line-height: 1;
+  margin-bottom: var(--mantine-spacing-md);
+}

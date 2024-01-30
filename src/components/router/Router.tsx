@@ -1,20 +1,36 @@
-import { Dialog } from '@headlessui/react';
 import { lazy, Suspense, useState } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
+import { HeaderApp } from './header/HeaderApp';
+import { FooterApp } from './footer/FooterApp';
+import { Partners } from '../shared/Partners';
+import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
+import { Box, Container, LoadingOverlay } from '@mantine/core';
+import { PrivateRoute } from './PrivateRoute';
+import AccessDenied from '../screens/AcessoNegado';
+import UnderConstruction from '../screens/EmConstrucao';
 
-const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
+const Loading = () => <LoadingOverlay
+  visible={true}
+  zIndex={1000}
+  overlayProps={{ radius: "sm", blur: 2 }}
+/>;
 
-const IndexScreen = lazy(() => import('~/components/screens/Index'));
+const IndexScreen = lazy(() => import('~/components/screens/Home/Home'));
+const ProfileScreen = lazy(() => import('~/components/screens/Profile/ProfileForm'));
+const SincronizeScreen = lazy(() => import('~/components/screens/Sincronize/SincronizeForm'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
+
 
 function Layout() {
   return (
-    <div>
-      <nav className="p-4 flex items-center justify-between">
-        <span>Header</span>
-      </nav>
-      <Outlet />
-    </div>
+    <>
+      <HeaderApp />
+      <Outlet/>
+      <Container>
+        <Partners />
+      </Container>
+      <FooterApp />
+    </>
   );
 }
 
@@ -35,6 +51,38 @@ const InnerRouter = () => {
         {
           index: true,
           element: <IndexScreen />,
+        },
+        {
+          path: '/login',
+          element: <AuthenticationForm />,
+        },
+        {
+          path: '/profile',
+          element: <PrivateRoute component={ProfileScreen} />,
+        },        
+        {
+          path: '/sincronize',
+          element: <PrivateRoute component={UnderConstruction} />,
+        },
+        {
+          path: '/sincronize',
+          element: <PrivateRoute component={UnderConstruction} />,
+        },
+        {
+          path: '/payment',
+          element: <PrivateRoute component={UnderConstruction} />,
+        },
+        {
+          path: '/news',
+          element: <PrivateRoute component={UnderConstruction} />,
+        },
+        {
+          path: '/ramp',
+          element: <PrivateRoute component={UnderConstruction} />,
+        },
+        {
+          path: '/acess_denied',
+          element: <AccessDenied />,
         },
         {
           path: '*',

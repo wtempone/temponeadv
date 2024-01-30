@@ -1,4 +1,5 @@
 # ⚡ vite-react-ts-tailwind-starter
+Repositorio privado
 
 Starter using Vite + React + TypeScript + Tailwind with Firebase.
 
