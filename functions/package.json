@@ -17,6 +17,7 @@
     "@types/puppeteer": "^7.0.4",
     "firebase-admin": "^11.8.0",
     "firebase-functions": "^4.3.1",
+    "gn-api-sdk-typescript": "^2.0.1",
     "puppeteer": "^21.9.0"
   },
   "devDependencies": {

@@ -18,6 +18,8 @@ const Loading = () => <LoadingOverlay
 const IndexScreen = lazy(() => import('~/components/screens/Home/Home'));
 const ProfileScreen = lazy(() => import('~/components/screens/Profile/ProfileForm'));
 const SincronizeScreen = lazy(() => import('~/components/screens/Sincronize/SincronizeForm'));
+const RampScreen = lazy(() => import('~/components/screens/Ramp/Ramp'))
+const PaymentScreen = lazy(() => import('~/components/screens/Payment/PaymentForm'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
 
 
@@ -65,12 +67,8 @@ const InnerRouter = () => {
           element: <PrivateRoute component={UnderConstruction} />,
         },
         {
-          path: '/sincronize',
-          element: <PrivateRoute component={UnderConstruction} />,
-        },
-        {
           path: '/payment',
-          element: <PrivateRoute component={UnderConstruction} />,
+          element: <PrivateRoute component={PaymentScreen} />,
         },
         {
           path: '/news',
@@ -78,7 +76,7 @@ const InnerRouter = () => {
         },
         {
           path: '/ramp',
-          element: <PrivateRoute component={UnderConstruction} />,
+          element: <PrivateRoute component={RampScreen} />,
         },
         {
           path: '/acess_denied',
