@@ -1,5 +1,5 @@
 .box_hide {
-  background-color: white;
+  background-color:var(--mantine-color-body);
   position: sticky; 
   top: 0; 
   width: 100%;
@@ -9,7 +9,7 @@
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 500ms !important;
   margin-bottom: var(--mantine-spacing-xs);
-  border-bottom: 1px solid lightgrey;
+  border-bottom: 1px solid var(--mantine-color-default-border);
 
   @media (max-width: $mantine-breakpoint-sm) {
     padding: var(--mantine-spacing-md);

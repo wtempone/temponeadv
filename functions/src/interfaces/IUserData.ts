@@ -1,0 +1,30 @@
+export interface IUserData {
+    id: string;
+    nome: string;
+    cpf: string;
+    rg: string;
+    dataNascimento: Date | null;
+    idade: number;
+    estadoCivil: string;
+    nacionalidade: string;
+    sexo: string;
+    cep: string;
+    logradouro: string;
+    numero: string;
+    complemento: string;
+    bairro: string;
+    cidade: string;
+    uf: string;
+    telefoneResidencial: string;
+    celular: string;
+    telefoneEmergencia: string;
+    email: string;
+    tipoSanguineo: string;
+    modalidade: string;
+    inicioEsporte: Date | null;
+    nivel: string;
+    escola: string;
+    instrutor: string;
+    termoResponsabilidade: boolean;
+    photoURL: string | null;
+}

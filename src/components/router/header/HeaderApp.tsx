@@ -1,43 +1,38 @@
 import {
-  HoverCard,
-  Group,
-  Button,
-  UnstyledButton,
-  Text,
-  SimpleGrid,
-  ThemeIcon,
-  Anchor,
-  Divider,
-  Center,
+  Avatar,
   Box,
   Burger,
-  Drawer,
+  Button,
+  Center,
   Collapse,
+  Divider,
+  Drawer,
+  Group,
+  HoverCard,
   ScrollArea,
-  rem,
-  useMantineTheme,
+  SimpleGrid,
   Stack,
-  Avatar,
+  Text,
+  ThemeIcon,
+  UnstyledButton,
+  rem,
+  useMantineTheme
 } from '@mantine/core';
-import companyLogo from "../../../assets/images/avlva-logo-circular.svg";
 import { useDisclosure } from '@mantine/hooks';
 import {
-  IconNotification,
-  IconCode,
   IconBook,
-  IconChartPie3,
-  IconFingerprint,
-  IconCoin,
   IconChevronDown,
+  IconCoin
 } from '@tabler/icons-react';
-import { BiNews, BiTransfer  } from "react-icons/bi";
+import { BiNews, BiTransfer } from "react-icons/bi";
+import companyLogo from "../../../assets/images/app-logo-circular.svg";
 
-import classes from './HeaderApp.module.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { LogOut } from '~/lib/authServices';
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthState } from '~/components/contexts/UserContext';
 import { useUserData } from '~/components/contexts/UserDataContext';
+import { LogOut } from '~/lib/authServices';
+import classes from './HeaderApp.module.css';
 
 const areaLogada = [
   {
@@ -64,6 +59,12 @@ const areaLogada = [
     description: 'Cadastre novas notícias',
     link: '/news'
   },
+  {
+    icon: BiNews,
+    title: 'Preferências',
+    description: 'Personalize sua experiência no site',
+    link: '/preferences'
+  },
 ];
 
 export function HeaderApp() {
@@ -77,7 +78,6 @@ export function HeaderApp() {
 
   function logoff() {
     LogOut().then(() => {
-      console.log('sair');
       closeDrawer();
       navigate("/");
     })
@@ -92,28 +92,30 @@ export function HeaderApp() {
       key={item.title}
       component={Link} variant='link' to={item.link}
       onClick={closeDrawer}>
-      <Group wrap="nowrap" align="flex-start">
-        <ThemeIcon size={34} variant="default" radius="md">
-          <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.blue[6]} />
-        </ThemeIcon>
-        <div>
-          <Text size="sm" fw={500}>
-            {item.title}
-          </Text>
-          <Text size="xs" c="dimmed" pr='md' pb='md'>
-            {item.description}
-          </Text>
-        </div>
+      <Group align="flex-start" p="xs">
+        <Group wrap="nowrap"  justify="initial">
+          <ThemeIcon size={34} variant="default" radius="md">
+            <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.blue[6]} />
+          </ThemeIcon>
+          <Stack gap={0}>
+            <Text size="sm" fw={500}>
+              {item.title}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {item.description}
+            </Text>
+          </Stack>
+        </Group>
       </Group>
     </UnstyledButton>
   ));
-  
+
   function useScrollDirection() {
     const [scrollDirection, setScrollDirection] = useState("");
-  
+
     useEffect(() => {
       let lastScrollY = window.scrollY;
-  
+
       const updateScrollDirection = () => {
         const scrollY = window.scrollY;
         const direction = scrollY > lastScrollY ? "down" : "up";
@@ -127,14 +129,14 @@ export function HeaderApp() {
         window.removeEventListener("scroll", updateScrollDirection); // clean up
       }
     }, [scrollDirection]);
-  
+
     return scrollDirection;
   };
   const scrollDirection = useScrollDirection();
 
   useEffect(() => {
 
-    
+
     setAutenticate(false)
     setFoto(null)
     setNome(null)
@@ -142,7 +144,7 @@ export function HeaderApp() {
       setAutenticate(true)
       setFoto(state.currentUser.photoURL!)
       setNome(state.currentUser.displayName!)
-    } 
+    }
     if (userData) {
       setFoto(userData.photoURL!)
       setNome(userData.nome)
@@ -150,22 +152,28 @@ export function HeaderApp() {
   }, [state, userData, scrollDirection])
 
   return (
-    <Box className={[classes.box_hide , scrollDirection ==="down" && (classes.down) ].join(' ')}>
+    <Box className={[classes.box_hide, scrollDirection === "down" && (classes.down)].join(' ')}>
       <header className={classes.header}>
-        <Group justify="space-between"  h="100%">
+        <Group justify="space-between" h="100%">
           <img src={companyLogo} id='companyLogo' style={{ width: rem(60), height: rem(60) }} alt="company logo" />
           <Group h="100%" visibleFrom="sm ">
             <Text className={classes.link} component={Link} variant='link' to='/'>
               Institucional
             </Text>
+            <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
+              Seja um piloto
+            </Text>
+            <Text className={classes.link} component={Link} variant='link' to='/activity'>
+              Atividade
+            </Text>
             <Text className={classes.link} component={Link} variant='link' to='/news'>
               Notícias
             </Text>
-            <Text className={classes.link} component={Link} variant='link' to='/ramp'>
-              Rampa
+            <Text className={classes.link} component={Link} variant='link' to='/customize'>
+              Customize(teste)
             </Text>
             {isAuthenticated && (
-              <HoverCard  position="bottom" radius="md" shadow="md" withinPortal>
+              <HoverCard position="bottom" radius="md" shadow="md" withinPortal>
                 <HoverCard.Target>
                   <a href="#" className={classes.link}>
                     <Center inline>
@@ -180,8 +188,8 @@ export function HeaderApp() {
                   </a>
                 </HoverCard.Target>
 
-                <HoverCard.Dropdown style={{ overflow: 'hidden' }}>
-                  <SimpleGrid cols={1} spacing={0} mb="md">
+                <HoverCard.Dropdown>
+                  <SimpleGrid cols={1} spacing={0} py="xs" mb='md'>
                     {links}
                   </SimpleGrid>
 
@@ -204,7 +212,7 @@ export function HeaderApp() {
               <Stack>
                 <Center>
                   <Avatar src={foto}
-                     radius="xl" size='md' />
+                    radius="xl" size='md' />
                 </Center>
                 <Center>
                   <Text fw={500} size="sm" lh={1} mr={3} className={classes.avatar_text}>
@@ -240,7 +248,7 @@ export function HeaderApp() {
           <Stack>
             <Center>
               <Avatar src={foto}
-                 radius={80} size={80} />
+                radius={80} size={80} />
             </Center>
             <Center>
               <Text fw={500} size="sm" lh={1} mr={3}>
@@ -255,11 +263,17 @@ export function HeaderApp() {
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/'>
             Institucional
           </Text>
+          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
+            Seja um piloto
+          </Text>
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/news'>
             Notícias
           </Text>
-          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/ramp'>
-            Rampa
+          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/activity'>
+            Atividade
+          </Text>
+          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/customize'>
+            Customize(Teste)
           </Text>
           {isAuthenticated && (
             <>

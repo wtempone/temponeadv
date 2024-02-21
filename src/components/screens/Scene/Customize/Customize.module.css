@@ -1,0 +1,11 @@
+.three_canvas{
+  width: 100%  !important;;
+  height: 100%  !important;;
+  background: rgb(255, 255, 255);
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 6%, rgba(115, 201, 221, 1) 100%);
+  display: inline-block;
+}
+canvas {
+  width: 100%  !important;;
+  height: 100%  !important;;
+}

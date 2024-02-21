@@ -21,7 +21,7 @@
     height: var(--loader-size);
     border-radius: var(--loader-size);
     border: 1px solid lightgray;
-    background-image: url('../../assets/images/avlva-logo-circular.svg');
+    background-image: url('../../assets/images/app-logo-circular.svg');
     background-repeat: no-repeat;
     background-size: contain;
     background-attachment: fixed;

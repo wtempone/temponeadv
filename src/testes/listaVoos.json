@@ -1,0 +1,163 @@
+[
+  {
+    "data": "2018-10-02T04:31:54 +03:00",
+    "melhor_pontuacao": 20,
+    "maior_distancia": 2585,
+    "maior_altitude": 1458,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Jarvis Mays",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Maria Tyler",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Viola Clayton",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2019-09-15T02:47:56 +03:00",
+    "melhor_pontuacao": 28,
+    "maior_distancia": 3328,
+    "maior_altitude": 1262,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Rollins Castro",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Church Holloway",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Vinson Berger",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2019-03-06T05:59:33 +03:00",
+    "melhor_pontuacao": 30,
+    "maior_distancia": 2765,
+    "maior_altitude": 1521,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Martin Lindsey",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Henrietta Lambert",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Gaines Stevenson",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2014-01-05T12:20:04 +02:00",
+    "melhor_pontuacao": 37,
+    "maior_distancia": 2893,
+    "maior_altitude": 651,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Gentry Kinney",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Horn Daniels",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Benton Little",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2022-02-15T02:14:02 +03:00",
+    "melhor_pontuacao": 26,
+    "maior_distancia": 3052,
+    "maior_altitude": 1309,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Cline Sosa",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Gonzalez Macias",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Katharine Curtis",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2015-03-26T01:55:50 +03:00",
+    "melhor_pontuacao": 28,
+    "maior_distancia": 3902,
+    "maior_altitude": 1331,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Madden Sweet",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Jensen Lowery",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Cameron Todd",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  },
+  {
+    "data": "2017-11-15T06:25:22 +02:00",
+    "melhor_pontuacao": 26,
+    "maior_distancia": 2894,
+    "maior_altitude": 1518,
+    "pilotos": [
+      {
+        "id": 0,
+        "nome": "Shelby Hendricks",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 1,
+        "nome": "Lowe Dixon",
+        "foto": "http://placehold.it/32x32"
+      },
+      {
+        "id": 2,
+        "nome": "Kane Williams",
+        "foto": "http://placehold.it/32x32"
+      }
+    ]
+  }
+]

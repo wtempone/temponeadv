@@ -1,0 +1,56 @@
+.wrapper {
+    position: absolute;
+    bottom: 28px;
+    width: 100%;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--mantine-color-body);
+    z-index: 30;
+    left: 0;
+    display: flex;
+}
+
+.button_close {
+    z-index: 30;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-radius: 50%;
+}
+
+.pill_icon {
+    width: rem(22);
+    height: rem(22);
+    padding: 0;
+    margin: 0;
+    border: var(--mantine-color-text) solid 2px;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    vertical-align: middle;
+    font-size: calc(var(--mantine-font-size-xs)*0.9);
+}
+.stats {
+    z-index: 30;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: var(--mantine-color-body);
+}
+.name {
+    width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: var(--mantine-font-size-xs);
+    font-family:
+        Greycliff CF,
+        var(--mantine-font-family);
+}
+.gauge {
+    width: 80px;
+    height: 100px;
+    position: relative;
+}

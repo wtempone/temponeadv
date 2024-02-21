@@ -1,0 +1,70 @@
+import { ActionIcon, Center, Container, Group, LoadingOverlay, Text, Title, UnstyledButton, rem } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useAuthState } from '~/components/contexts/UserContext';
+import { useUserData } from '~/components/contexts/UserDataContext';
+import { fullNamedDateString, stringToDate } from '~/components/shared/helpers';
+import { ListTrackLogUserData } from '~/lib/repositories/userTrackLogRepository';
+import ItemtActivity from './ItemActivity';
+import { RiMovieLine } from 'react-icons/ri';
+import { FaListUl } from 'react-icons/fa';
+import { MdNavigateBefore } from 'react-icons/md';
+import { useDisclosure } from '@mantine/hooks';
+import { LoadingMain } from '~/components/shared/Loading';
+
+export default function ActivityDate() {
+  const params = useParams();
+  if (!params || !params.id) {
+    throw new Error('Data não informada');
+  }
+  const dataparam = stringToDate(params.id!);
+  const [items, setItems] = useState<Array<any>>();
+  const [count, setCount] = useState<number>();
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [initiliazed, setInitiliazed] = useState<boolean>(false);
+  const [visible, { toggle }] = useDisclosure(true);
+
+  useEffect(() => {
+    if (!initiliazed) {
+      refresh();
+      setInitiliazed(true);
+    }
+  }, []);
+
+  function refresh() {
+    ListTrackLogUserData(dataparam!).then((resp) => {
+      setItems(resp!);
+      setHasMore(false);
+      toggle();
+    });
+  }
+
+  return (
+    <>
+      <LoadingOverlay visible={visible} overlayProps={{ blur: 10 }} loaderProps={{ children: <LoadingMain /> }} />
+      <Container>
+        <Group justify="space-between">
+          <Title size="h5" mb="md">
+            {fullNamedDateString(dataparam!)}
+          </Title>
+
+          <Group>
+            <UnstyledButton variant="default" size="lg" aria-label="Abrir cena do dia">
+              <RiMovieLine style={{ width: rem(20) }} />
+            </UnstyledButton>
+            <UnstyledButton
+              component={Link}
+              to="/activity"
+              variant="default"
+              size="lg"
+              aria-label="Ir para lista de voos do dia"
+            >
+              <MdNavigateBefore style={{ width: rem(20) }} />
+            </UnstyledButton>
+          </Group>
+        </Group>
+        {items && items.map((item, index) => <ItemtActivity key={index} Tracklog={item} />)}
+      </Container>
+    </>
+  );
+}

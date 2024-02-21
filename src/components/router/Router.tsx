@@ -1,13 +1,16 @@
-import { lazy, Suspense, useState } from 'react';
-import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
-import { HeaderApp } from './header/HeaderApp';
-import { FooterApp } from './footer/FooterApp';
-import { Partners } from '../shared/Partners';
-import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
-import { Box, Container, LoadingOverlay } from '@mantine/core';
-import { PrivateRoute } from './PrivateRoute';
+import { LoadingOverlay } from '@mantine/core';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom';
 import AccessDenied from '../screens/AcessoNegado';
+import Beapilot from '../screens/Beapilot/Beapilot';
 import UnderConstruction from '../screens/EmConstrucao';
+import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
+import { Preferences } from '../screens/Preference/Preferences';
+import Customize from '../screens/Scene/Customize/Customize';
+import UploadTrackFile from '../screens/UploadTrackFile/UploadTrackFile';
+import { HeaderApp } from './header/HeaderApp';
+import { PrivateRoute } from './PrivateRoute';
+import { ModalsProvider } from '@mantine/modals';
 
 const Loading = () => <LoadingOverlay
   visible={true}
@@ -17,8 +20,9 @@ const Loading = () => <LoadingOverlay
 
 const IndexScreen = lazy(() => import('~/components/screens/Home/Home'));
 const ProfileScreen = lazy(() => import('~/components/screens/Profile/ProfileForm'));
-const SincronizeScreen = lazy(() => import('~/components/screens/Sincronize/SincronizeForm'));
-const RampScreen = lazy(() => import('~/components/screens/Ramp/Ramp'))
+const ActivityScreen = lazy(() => import('~/components/screens/Activity/Activity'))
+const ActivityDateScreen = lazy(() => import('~/components/screens/Activity/ActivityDate'))
+const SceneScreen = lazy(() => import('~/components/screens/Scene/Scene'))
 const PaymentScreen = lazy(() => import('~/components/screens/Payment/PaymentForm'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
 
@@ -26,12 +30,10 @@ const Page404Screen = lazy(() => import('~/components/screens/404'));
 function Layout() {
   return (
     <>
-      <HeaderApp />
-      <Outlet/>
-      <Container>
-        <Partners />
-      </Container>
-      <FooterApp />
+      <ModalsProvider>
+        <HeaderApp />
+        <Outlet />
+      </ModalsProvider>
     </>
   );
 }
@@ -57,11 +59,18 @@ const InnerRouter = () => {
         {
           path: '/login',
           element: <AuthenticationForm />,
+        }, {
+          path: '/beapilot',
+          element: <Beapilot />,
         },
         {
           path: '/profile',
           element: <PrivateRoute component={ProfileScreen} />,
-        },        
+        },
+        {
+          path: '/preferences',
+          element: <PrivateRoute component={Preferences} />,
+        },
         {
           path: '/sincronize',
           element: <PrivateRoute component={UnderConstruction} />,
@@ -75,8 +84,24 @@ const InnerRouter = () => {
           element: <PrivateRoute component={UnderConstruction} />,
         },
         {
-          path: '/ramp',
-          element: <PrivateRoute component={RampScreen} />,
+          path: '/customize',
+          element: <Customize />,
+        },
+        {
+          path: '/uploadTrackFile',
+          element: <PrivateRoute component={UploadTrackFile} />,
+        },
+        {
+          path: '/activity',
+          element: <ActivityScreen />,
+        },
+        {
+          path: '/activity/:id',
+          element: <ActivityDateScreen />,
+        },
+        {
+          path: '/scene/:id',
+          element: <SceneScreen model={null} points={null} />,
         },
         {
           path: '/acess_denied',

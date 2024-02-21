@@ -7,9 +7,9 @@ import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 let firebaseApp: FirebaseApp;
 const useEmulator = () => import.meta.env.VITE_USE_FIREBASE_EMULATOR;
 
-export const setupFirebase = () => {
+export const setupFirebase = async () => {
   try {
-    firebaseApp = initializeApp({
+    firebaseApp = await initializeApp({
       apiKey: import.meta.env.VITE_FIREBASE_APIKEY,
       authDomain: import.meta.env.VITE_FIREBASE_AUTHDOMAIN,
       projectId: import.meta.env.VITE_FIREBASE_PROJECTID,
@@ -30,7 +30,7 @@ let functions: ReturnType<typeof getFunctions>;
 async function setupAuthEmulator(auth: Auth) {
   const authUrl = 'http://localhost:9099'
   await fetch(authUrl)
-  connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true })
+  connectAuthEmulator(auth, 'http://localhost:9099')
 }
 export const useAuth = () => {
   auth = getAuth(firebaseApp);

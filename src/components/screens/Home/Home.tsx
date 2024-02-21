@@ -10,6 +10,7 @@ import { ListSectionsInicio, SectionsInicio } from '~/lib/repositories/sectionsI
 import Autoplay from 'embla-carousel-autoplay';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
+import { FooterApp } from '~/components/router/footer/FooterApp';
 
 function Card({ imagem }: LinksInicio) {
   return (
@@ -58,7 +59,7 @@ export default function Home() {
       <div className={classes.hero}>
         <Container className={classes.container} size="md">
           <Title className={classes.main_title}>
-            Seja Bem-Vindo à A.E.T.C
+            Seja Bem-Vindo à AVLVA
             Transformando Vidas, Celebrando Culturas!</Title>
           <Text className={classes.description} size="xl" mt="xl">
             Faça parte da maior comunidade de esportes de aventura do Vale do Aço
@@ -88,7 +89,7 @@ export default function Home() {
               Quem Somos
             </Title>
             <Text fz="md" c="dimmed">
-              A A.E.T.C, Associação de Esportes, Turismo e Cultura do Vale do Aço, é uma entidade comprometida com o desenvolvimento integral da região. Fundada em 2007, tem como propósito incentivar, promover e refletir sobre todas as modalidades esportivas da região, fortalecer o turismo em suas diversas vertentes e valorizar, divulgar e fortalecer a rica cultura do Vale do Aço.
+              A AVLVA, Associação de Voo Livre do Vale do Aço, é uma entidade comprometida com o desenvolvimento integral da região. Fundada em 2007, tem como propósito incentivar, promover e refletir sobre todas as modalidades esportivas da região, fortalecer o turismo em suas diversas vertentes e valorizar, divulgar e fortalecer a rica cultura do Vale do Aço.
             </Text>
           </div>
         </div>
@@ -128,7 +129,7 @@ export default function Home() {
               Nossa Estrutura
             </Title>
             <Text fz="md" c="dimmed">
-              A A.E.T.C é composta pela Assembleia Geral, Diretoria, Conselho Fiscal e Associados. A Assembleia Geral, órgão soberano, se reúne regularmente para discutir assuntos de interesse geral, incluindo eleições da Diretoria, aprovação de contas e relatórios de atividades.            </Text>
+              A AVLVA é composta pela Assembleia Geral, Diretoria, Conselho Fiscal e Associados. A Assembleia Geral, órgão soberano, se reúne regularmente para discutir assuntos de interesse geral, incluindo eleições da Diretoria, aprovação de contas e relatórios de atividades.            </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>
@@ -137,17 +138,20 @@ export default function Home() {
               Participe da Mudança
             </Title>
             <Text fz="md" c="dimmed">
-              Seja parte ativa da A.E.T.C! Torne-se um associado, participe das assembleias e contribua para o fortalecimento do esporte, turismo e cultura em nossa região.            </Text>
+              Seja parte ativa da AVLVA! Torne-se um associado, participe das assembleias e contribua para o fortalecimento do esporte, turismo e cultura em nossa região.            
+              </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>
           <div className={classes.section_body}>
             <Title size='h2' mb="lg">
-              Junte-se a nós! A.E.T.C - Transformando Vidas Através do Esporte, Turismo e Cultura
+              Junte-se a nós! AVLVA - Transformando Vidas Através do Esporte, Turismo e Cultura
             </Title>
           </div>
         </div>
       </Paper>
+      <FooterApp />
+
     </>
 
   );

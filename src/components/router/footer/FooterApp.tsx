@@ -1,7 +1,8 @@
 import { Text, Container, ActionIcon, Group, rem } from '@mantine/core';
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram } from '@tabler/icons-react';
-import companyLogo from "../../../assets/images/avlva-logo.webp";
+import companyLogo from "../../../assets/images/app-logo-circular.svg";
 import classes from './FooterApp.module.css';
+import { Partners } from '~/components/router/footer/Partners';
 
 // const data = [
 //   {
@@ -57,9 +58,14 @@ export function FooterApp() {
 
   return (
     <footer className={classes.footer}>
+
+      <Container mb='xl'>
+        <Partners />
+      </Container>
+
       <Container className={classes.inner}>
         <div className={classes.logo}>
-        <img src={companyLogo} id='companyLogo' style={{ width: rem(100), height: rem(100) }} alt="company logo" />
+          <img src={companyLogo} id='companyLogo' style={{ width: rem(100), height: rem(100) }} alt="company logo" />
           <Text size="xs" c="dimmed" className={classes.description}>
             Associação de Voo Livre do Vale do Aço
           </Text>
@@ -68,7 +74,7 @@ export function FooterApp() {
       </Container>
       <Container className={classes.afterFooter}>
         <Text c="dimmed" size="sm">
-          TEMPONE TECNOLOGIA 
+          TEMPONE TECNOLOGIA
         </Text>
 
         <Group gap={0} className={classes.social} justify="flex-end" wrap="nowrap">

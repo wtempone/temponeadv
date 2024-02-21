@@ -1,5 +1,5 @@
 import { Loader, rem } from '@mantine/core';
-import companyLogo from "../../assets/images/avlva-logo-circular.svg";
+import companyLogo from "../../assets/images/app-logo-circular.svg";
 
 export const LoadingMain = () => (
   <>
