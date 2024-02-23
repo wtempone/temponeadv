@@ -19,7 +19,7 @@ export function UserDataProvider({ children }: UserDataProviderProps) {
     const [userData, setUserData] = useState<UserData>();
     const { state } = useAuthState();
     useEffect(() => {
-
+        console.log('userData')
         const getUserData = async (user: User) => {
 
             try {

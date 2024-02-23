@@ -1,3 +1,9 @@
 .viewer {
   z-index: 20;
 }
+
+.card_viewer {
+  width: 100%;
+  height: auto;
+}
+

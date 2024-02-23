@@ -84,10 +84,6 @@ const InnerRouter = () => {
           element: <PrivateRoute component={UnderConstruction} />,
         },
         {
-          path: '/customize',
-          element: <Customize />,
-        },
-        {
           path: '/uploadTrackFile',
           element: <PrivateRoute component={UploadTrackFile} />,
         },
@@ -99,9 +95,10 @@ const InnerRouter = () => {
           path: '/activity/:id',
           element: <ActivityDateScreen />,
         },
+
         {
           path: '/scene/:id',
-          element: <SceneScreen model={null} points={null} />,
+          element: <SceneScreen />,
         },
         {
           path: '/acess_denied',

@@ -26,8 +26,8 @@ const args = {
 
 };
 
-export default function Scene(props: { model: ArrayBuffer | null, points: IGCParser.BRecord[] | null }) {
-  
+export default function Scene() {
+
   const params = useParams();
   const ref = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const [tracklogs, setTracklogs] = useState<Array<TrackLog>>();
@@ -45,17 +45,7 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
       });
     }
   }
- 
-  function createNewScene() {
-
-  }
-
-  if (!props.points || !props.model) {
-    loadSavedScene();
-  } else {
-    createNewScene();
-  }
-
+  loadSavedScene();
   useEffect(() => {
     if (ref.current?.cesiumElement) {
       configureScene();
@@ -99,7 +89,6 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
       console.log('trackEntity not found');
     }
   }
-
   async function configureTerrain(viewerRef: React.RefObject<CesiumComponentRef<CesiumViewer>>) {
     try {
       const tileset = await createGooglePhotorealistic3DTileset(import.meta.env.VITE_GOOGLEMAPS_APIKEY, {
@@ -117,106 +106,6 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
       throw error
     }
   }
-
-  function reduzQuantidadedePontos(pontos: IGCParser.BRecord[], quantidade: number) {
-    const pontosFiltrados = pontos.filter((ponto, index, array) => {
-      return index % quantidade === 0;
-    });
-    return pontosFiltrados;
-  }
-
-  function calculaVelocidades(pontos: IGCParser.BRecord[]) {
-    const position = new SampledPositionProperty();
-
-    const velocityVectorProperty = new VelocityVectorProperty(
-      position,
-      false
-    );
-
-    for (let i = 0; i < pontos.length; i++) {
-      const ponto = pontos[i];
-      const time = JulianDate.fromDate(new Date(ponto.timestamp!));
-      const location = Cartesian3.fromDegrees(ponto.longitude, ponto.latitude, ponto.gpsAltitude!);
-      position.addSample(time, location);
-    }
-
-    const velocityProperties = [];
-
-    for (let i = 0; i < pontos.length; i++) {
-      const ponto = pontos[i];
-      const velocityVector = new Cartesian3();
-      const time = JulianDate.fromDate(new Date(ponto.timestamp!));
-      velocityVectorProperty.getValue(time, velocityVector);
-      const metersPerSecond = Cartesian3.magnitude(velocityVector);
-      const kmPerHour = Math.round(metersPerSecond * 3.6);
-      velocityProperties.push(
-        { interval: time.toString(), number: kmPerHour }
-      );
-    }
-    const positionAsc = new SampledPositionProperty();
-
-    const ascVectorProperty = new VelocityVectorProperty(
-      positionAsc,
-      false
-    );
-
-    for (let i = 0; i < pontos.length; i++) {
-      const ponto = pontos[i];
-      const time = JulianDate.fromDate(new Date(ponto.timestamp!));
-      const location = Cartesian3.fromDegrees(0, 0, ponto.gpsAltitude!);
-      positionAsc.addSample(time, location);
-    }
-
-    const ascProperties = [];
-
-    for (let i = 0; i < pontos.length; i++) {
-      const ponto = pontos[i];
-      const velocityVector = new Cartesian3();
-      const time = JulianDate.fromDate(new Date(ponto.timestamp!));
-      ascVectorProperty.getValue(time, velocityVector);
-      let metersPerSecond = Cartesian3.magnitude(velocityVector);
-      if (i > 0 && metersPerSecond !== 0) {
-        if (ponto.gpsAltitude! < pontos[i - 1].gpsAltitude!) {
-          metersPerSecond = -1 * metersPerSecond;
-        }
-      }
-      ascProperties.push(
-        { interval: time.toString(), number: metersPerSecond }
-      );
-    }
-    return { velocityProperties, ascProperties };
-  }
-
-  function eliminaVelocidadesIrrelevantes(filtered: IGCParser.BRecord[], velocityProperties: Array<any>, ascProperties: Array<any>) {
-    const velocidades = velocityProperties;
-    const asc = ascProperties;
-    const pontosFiltrados = Array<IGCParser.BRecord>();
-    const velocidadesFiltradas = Array<any>();
-    const ascFiltradas = Array<any>();
-    let inicio = false;
-    for (let i = 0; i < filtered.length; i++) {
-      if (velocidades[i].number > 6 && asc[i].number != 0) {
-        if (inicio === false) {
-          for (let j = i - 1; j >= 0; j--) {
-            pontosFiltrados.push(filtered[i]);
-            velocidadesFiltradas.push(velocidades[i]);
-            ascFiltradas.push(asc[i]);
-          }
-          inicio = true;
-        }
-        pontosFiltrados.push(filtered[i]);
-        velocidadesFiltradas.push(velocidades[i]);
-        ascFiltradas.push(asc[i]);
-      }
-    }
-    const lastPoint = pontosFiltrados.length - 1
-    for (let i = lastPoint; i < filtered.length; i++) {
-      pontosFiltrados.push(filtered[lastPoint]);
-      velocidadesFiltradas.push(velocidades[lastPoint]);
-      ascFiltradas.push(asc[lastPoint]);
-    }
-    return { filteredFiltrados: pontosFiltrados, velocidadesFiltradas, ascFiltradas };
-  }
   function formataCustomPropertie(customProperties: Array<any>) {
     const properties: Array<any> = [];
     for (let i = 0; i < customProperties.length; i++) {
@@ -226,27 +115,11 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
     return properties;
   }
   async function tracklogToCZML(tracklogs: Array<TrackLog>) {
-
-    let tracklogsAnalisis: Array<any> = [];
-    for (let i = 0; i < tracklogs.length; i++) {
-      tracklogsAnalisis.push(tracklogs[i]);
-      const tracklog = tracklogs[i];
-      let filtered = tracklog.trackLogData!.filtered;
-      filtered = reduzQuantidadedePontos(filtered, 3);
-      const customProperties = calculaVelocidades(filtered);
-      const filtrados = eliminaVelocidadesIrrelevantes(filtered, customProperties.velocityProperties, customProperties.ascProperties);
-      const customVelocity = formataCustomPropertie(filtrados.velocidadesFiltradas);
-      const customAsc = formataCustomPropertie(filtrados.ascFiltradas);
-      tracklogsAnalisis[i].trackLogData.filtered = filtrados.filteredFiltrados;
-      tracklogsAnalisis[i].trackLogData.velocityProperties = customVelocity;
-      tracklogsAnalisis[i].trackLogData.ascProperties = customAsc;
-    }
-
-    const contTracklog = tracklogsAnalisis.length;
-    const lastPoints = tracklogsAnalisis[contTracklog - 1].trackLogData!.filtered.length;
-    const initialDateScene = JulianDate.fromDate(new Date(tracklogsAnalisis[0].trackLogData?.filtered[0].timestamp!));
+    const contTracklog = tracklogs.length;
+    const lastPoints = tracklogs[contTracklog - 1].trackLogData!.flightPoints.length;
+    const initialDateScene = JulianDate.fromDate(new Date(tracklogs[0].trackLogData?.flightPoints[0].timestamp!));
     const endDateScene = JulianDate.fromDate(
-      new Date(tracklogsAnalisis[contTracklog - 1].trackLogData?.filtered[lastPoints - 1].timestamp!),
+      new Date(tracklogs[contTracklog - 1].trackLogData?.flightPoints[lastPoints - 1].timestamp!),
     );
     const interval = initialDateScene.toString() + '/' + endDateScene.toString();
 
@@ -258,14 +131,14 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
       step: 'SYSTEM_CLOCK_MULTIPLIER',
     };
 
-    const tracklogsEntities = tracklogsAnalisis.map((log) => {
-      const start = JulianDate.fromDate(new Date(log.trackLogData?.filtered[0].timestamp!));
+    const tracklogsEntities = tracklogs.map((log) => {
+
+      const start = JulianDate.fromDate(new Date(log.trackLogData?.flightPoints[0].timestamp!));
       const end = JulianDate.fromDate(
-        new Date(log.trackLogData?.filtered[log.trackLogData?.filtered.length - 1].timestamp!),
+        new Date(log.trackLogData?.flightPoints[log.trackLogData?.flightPoints.length - 1].timestamp!),
       );
       const availability = start.toString() + '/' + end.toString();
-      let filtered = log.trackLogData!.filtered;
-      const degrees = filtered.map((point: any) => {
+      const flightPointsDegrees = log.trackLogData!.flightPoints.map((point: any) => {
         return [
           JulianDate.fromDate(new Date(point.timestamp!)).toString(),
           point.longitude,
@@ -273,30 +146,27 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
           point.gpsAltitude,
         ];
       });
-
-      const positions = degrees!.flat();
+      const velocities = formataCustomPropertie(log.trackLogData!.velocityProperties);
+      const ascensions = formataCustomPropertie(log.trackLogData!.ascProperties);
+      const positions = flightPointsDegrees!.flat();
       return {
         id: log.id,
         name: log.userData?.nome,
         availability: availability,
-        billboard: {
-          sizeInMeters: true,
-          eyeOffset: {
-            cartesian: [0.0, 2.2, -2.0],
-          },
-          image: log.userData?.photoURL,
-          width: 1,
-          height: 1,
-
-        },
         label: {
           fillColor: {
             rgba: [255, 255, 255, 255],
           },
-          eyeOffset: {
-            cartesian: [0.0, 3.2, -5.0],
+          outlineColor: {
+            rgba: [
+              0, 0, 0, 255
+            ]
           },
-          font: '10pt Lucida Console',
+          eyeOffset: {
+            cartesian: [0.0, 8.0, -4.0],
+          },
+          scale: 0.25,
+          font: '40pt Arial',
           horizontalOrigin: 'CENTER',
           style: 'FILL',
           text: log.userData?.nome,
@@ -307,18 +177,8 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
           },
         },
         model: {
-          gltf: 'https://firebasestorage.googleapis.com/v0/b/avlva-dev.appspot.com/o/glider_customized_models%2Ff83e4151-2252-4044-a56f-e065476e26be.gltf?alt=media&token=38bb665c-41bb-4c62-948b-5731993deefe',
-          scale: 3,
-          silhouetteColor:
-          {
-            rgba: [127, 127, 127, 127],
-          },
-          silhouetteSize: 0.2,
-          color: {
-            rgba: [255, 0, 0, 255],
-          },
-          colorBlendMode: 'HIGHLIGHT',
-          colorBlendAmount: 0.01,
+          gltf: log.trackLogData?.gliderURL,
+          scale: 2,
         },
         orientation: {
           velocityReference: '#position',
@@ -326,7 +186,7 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
         path: {
           leadTime: -0.15,
           // trailTime: 1,
-          resolution: 1,
+          resolution: 0.5,
           material: {
             solidColor: {
               color:
@@ -348,10 +208,10 @@ export default function Scene(props: { model: ArrayBuffer | null, points: IGCPar
         },
         properties: {
           velocidade: {
-            number: log.trackLogData.velocityProperties,
+            number: velocities,
           },
           ascencao: {
-            number: log.trackLogData.ascProperties,
+            number: ascensions,
           },
         }
       };

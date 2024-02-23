@@ -1,28 +1,17 @@
 
-import { Avatar, Box, Center, Group, HoverCard, Text, RangeSlider, SimpleGrid, Slider, Stack, ThemeIcon, UnstyledButton, rem, ActionIcon, Title, ColorInput, SegmentedControl, Button, Pill, Paper, RingProgress, CloseButton } from '@mantine/core';
-import { IconPoint, IconGripVertical, IconChevronUp, IconExternalLink } from '@tabler/icons-react';
-import classes from './SceneControls.module.css';
-import { CesiumComponentRef } from 'resium';
-import { Cartesian3, Cartographic, Viewer as CesiumViewer, Color, JulianDate, VelocityVectorProperty } from 'cesium';
-import { TrackLog } from '~/lib/repositories/userTrackLogRepository';
-import { useEffect, useState } from 'react';
-import { BarChart } from '@mantine/charts';
-import { IoPlayOutline } from "react-icons/io5";
-import { IoPauseOutline } from "react-icons/io5";
-import { IoPlayForwardOutline } from "react-icons/io5";
-import { IoPlayBackOutline } from "react-icons/io5";
-import { IoPlaySkipBackOutline } from "react-icons/io5";
-import { IoPlaySkipForwardOutline } from "react-icons/io5";
+import { ActionIcon, Avatar, Button, CloseButton, ColorInput, Group, HoverCard, Paper, SegmentedControl, SimpleGrid, Text, Title, UnstyledButton, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { FaUsers } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
-import { IoCloseOutline } from "react-icons/io5";
-import { PiUsersThree } from "react-icons/pi";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { useForm } from '@mantine/form';
-import { GiDuration } from "react-icons/gi";
+import { IconChevronUp } from '@tabler/icons-react';
+import { Cartographic, Viewer as CesiumViewer, JulianDate } from 'cesium';
+import { useEffect, useState } from 'react';
+import GaugeComponent from 'react-gauge-component';
+import { IoCloseOutline, IoColorPaletteOutline, IoPauseOutline, IoPlayBackOutline, IoPlayForwardOutline, IoPlayOutline, IoPlaySkipBackOutline, IoPlaySkipForwardOutline } from "react-icons/io5";
 import { MdQueryStats } from "react-icons/md";
-import GaugeComponent from 'react-gauge-component'
+import { PiUsersThree } from "react-icons/pi";
+import { useNavigate } from 'react-router-dom';
+import { CesiumComponentRef } from 'resium';
+import { TrackLog } from '~/lib/repositories/userTrackLogRepository';
+import classes from './SceneControls.module.css';
 
 interface Stats {
     GpsAltitute: string;
@@ -52,10 +41,10 @@ export function SceneControls(props: {
         props.viewer.current!.cesiumElement!.clock.multiplier = velocities[indexVelocityPlayback];
     }
     const contTracklog = props.tracklogs.length;
-    const lastPoints = props.tracklogs[props.tracklogs.length - 1].trackLogData!.filtered.length;
-    const initialDateScene = JulianDate.fromDate(new Date(props.tracklogs[0].trackLogData?.filtered[0].timestamp!));
+    const lastPoints = props.tracklogs[props.tracklogs.length - 1].trackLogData!.flightPoints.length;
+    const initialDateScene = JulianDate.fromDate(new Date(props.tracklogs[0].trackLogData?.flightPoints[0].timestamp!));
     const endDateScene = JulianDate.fromDate(
-        new Date(props.tracklogs[contTracklog - 1].trackLogData?.filtered[lastPoints - 1].timestamp!),
+        new Date(props.tracklogs[contTracklog - 1].trackLogData?.flightPoints[lastPoints - 1].timestamp!),
     );
 
     function goToBoundsTimeLine(start: boolean) {

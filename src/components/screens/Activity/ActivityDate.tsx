@@ -1,4 +1,4 @@
-import { ActionIcon, Center, Container, Group, LoadingOverlay, Text, Title, UnstyledButton, rem } from '@mantine/core';
+import { ActionIcon, Center, Container, Group, LoadingOverlay, SimpleGrid, Text, Title, UnstyledButton, rem } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuthState } from '~/components/contexts/UserContext';
@@ -63,7 +63,11 @@ export default function ActivityDate() {
             </UnstyledButton>
           </Group>
         </Group>
-        {items && items.map((item, index) => <ItemtActivity key={index} Tracklog={item} />)}
+        <Group justify="center">
+          <SimpleGrid cols={{ base: 1, sm: 2 }}>
+            {items && items.map((item, index) => <ItemtActivity key={index} Tracklog={item} />)}
+          </SimpleGrid>
+        </Group>
       </Container>
     </>
   );

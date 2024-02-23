@@ -3,58 +3,43 @@ import {
   Center,
   Container,
   FileButton,
-  Loader,
   Modal,
   Paper,
   PaperProps,
   Stack,
   Text,
-  Title,
   rem
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { IconCloudUpload, IconFile } from '@tabler/icons-react';
-import { parse as igcParser } from 'igc-parser';
-import { Solution, solver as igcSolver, scoringRules } from 'igc-xc-score';
-import { useEffect, useState } from 'react';
-import { useAuthState } from '~/components/contexts/UserContext';
-import { useUserData } from '~/components/contexts/UserDataContext';
-import { useStorage } from '~/lib/firebase';
-import { AddTrackLog, GetTrackLog } from '~/lib/repositories/userTrackLogRepository';
+import IGCParser, { IGCFile, parse as igcParser } from 'igc-parser';
+import { useState } from 'react';
+import { GliderSettings } from '~/lib/repositories/userDataRepository';
+import { GetTrackLog } from '~/lib/repositories/userTrackLogRepository';
 import Customize from '../Scene/Customize/Customize';
+import NewScene from '../Scene/NewScene';
+
 export default function UploadTrackFile(props: PaperProps) {
-  const { state } = useAuthState();
-  const { userData, setUserData } = useUserData();
   const [file, setFile] = useState<File | null>(null);
   const [loadForm, setLoadForm] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
-  const [progressUpload, setProgressUpload] = useState(0);
-  const storage = useStorage();
+  const [openedCusomize, { open: openCustomize, close: closeCustomize }] = useDisclosure(false);
+  const [openedScene, { open: openNewScene, close: closeNewScene }] = useDisclosure(false);
 
-  const form = useForm();
+  const [flight, setFlight] = useState<IGCFile | null>(null);
+  const [definirPadrao, setDefinirPadrao] = useState<boolean>(true);
+  const [coresPadrao, setCoresPadrao] = useState<boolean>(true);
+  const [gliderSetings, setGliderSetings] = useState<GliderSettings | null>(null);
+  const [model, setModel] = useState<Blob | null>(null);
 
-  useEffect(() => {
-    if (isUploading) return;
-    if (loadForm) {
-      setLoadForm(false);
-    }
-    if (file) {
-      setFile(file);
-    }
-  }, [file, isUploading, progressUpload]);
-
-  const [opened, { open, close }] = useDisclosure(false);
-
-  function paseFile(file: File): Promise<Solution | undefined> {
+  function paseFile(file: File): Promise<IGCParser.IGCFile | undefined> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
         const fileResult = fileReader.result as string;
         const igcFile = igcParser(fileResult, { lenient: true });
-        const score = igcSolver(igcFile, scoringRules['FAI']).next().value;
-        resolve(score);
+        // const score = igcSolver(igcFile, scoringRules['FAI']).next().value;
+        resolve(igcFile);
       };
       fileReader.onerror = (error) => {
         reject(error);
@@ -63,9 +48,9 @@ export default function UploadTrackFile(props: PaperProps) {
     });
   }
 
-  async function checkValidFile(data: Solution): Promise<boolean> {
-    if (data.opt.flight.fixes[0].timestamp) {
-      const id = data.opt.flight.fixes[0].timestamp.toString();
+  async function checkValidFile(data: IGCParser.IGCFile): Promise<boolean> {
+    if (data.fixes[0].timestamp) {
+      const id = data.fixes[0].timestamp.toString();
       const tracklog = await GetTrackLog(id);
       if (tracklog) {
         modals.open({
@@ -113,31 +98,52 @@ export default function UploadTrackFile(props: PaperProps) {
         return;
       }
     }
-    open();
-    // setFile(null);
-    // setIsUploading(true);
-    // updateFirestore(userData?.id!, dataFligth!).then(() => {
-    //   setIsUploading(false);
-    // });
-  };
-  const updateFirestore = async (userId: string, dataFligth: Solution) => {
-    return AddTrackLog(userId, dataFligth).then(() => {
-      open();
-    });
+    setFlight(dataFligth!)
+    openCustomize();
   };
 
+  const handleCustomizeConfirm = () => {
+    closeCustomize();
+    openNewScene();
+  }
   return (
     <>
       <Modal
         fullScreen={true}
-        opened={opened}
-        onClose={close}
+        opened={openedCusomize}
+        onClose={closeCustomize}
         withCloseButton={false}
         closeOnClickOutside={false}
         closeOnEscape={false}
         centered
       >
-        <Customize/>
+        <Customize
+          setGliderSetings={setGliderSetings}
+          setModel={setModel}
+          setDefinirPadrao={setDefinirPadrao}
+          definirPadrao={definirPadrao}
+          coresPadrao={coresPadrao}
+          setCoresPadrao={setCoresPadrao} 
+          close={closeCustomize}
+          confirm={handleCustomizeConfirm}
+        />
+      </Modal>
+      <Modal
+        fullScreen={true}
+        opened={openedScene}
+        onClose={closeNewScene}
+        withCloseButton={false}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        centered
+      >
+        <NewScene
+          gliderSettings={gliderSetings}
+          model={model}
+          flight={flight}
+          usarPadrao={coresPadrao}
+          definirPadrao={definirPadrao}
+        />
       </Modal>
       <Container>
         <Center>
@@ -145,63 +151,57 @@ export default function UploadTrackFile(props: PaperProps) {
             Faça upload do seu arquivo de tracklog.
           </Text>
         </Center>
-        <form
-          onSubmit={form.onSubmit((user) => {
-            handleSubmit();
-          })}
-        >
-          <Stack>
-            <Center>
-              <IconCloudUpload style={{ width: rem(50), height: rem(50) }} stroke={1.5} />
-            </Center>
-            <Center>
-              <Paper radius="md" p={{ base: 'sm', sm: 'xl' }} withBorder {...props}>
-                {!file && (
-                  <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                    Selecione o arquivo para importação. Nós aceitamos apennas arquivos <i>.igc</i> com um tamanho de
-                    até 30mb.
-                  </Text>
-                )}
-                {file && (
-                  <Stack>
-                    <Center>
-                      <IconFile style={{ width: rem(50), height: rem(50) }} stroke={1.5} />
-                    </Center>
-                    <Center>
-                      <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                        {file?.name}
-                      </Text>
-                    </Center>
-                    <Center>
-                      <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                        {`${(file?.size / 1024 ** 2).toFixed(2)} MB`}
-                      </Text>
-                    </Center>
-                    <Center>
-                      <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                        {file?.type}
-                      </Text>
-                    </Center>
-                  </Stack>
-                )}
-              </Paper>
-            </Center>
-            <Center>
-              <FileButton onChange={setFile} accept='igc/igc'>
-                {(props) => (
-                  <Button variant='default' size="md" radius="xl" mt="xs" {...props}>
-                    Selecionar arquivo
-                  </Button>
-                )}
-              </FileButton>
-            </Center>
-          </Stack>
-          <Center mt="xl">
-            <Button  size="md" radius="xl" mt="xs" disabled={!file} type="submit">
-              Avançar
-            </Button>
+        <Stack>
+          <Center>
+            <IconCloudUpload style={{ width: rem(50), height: rem(50) }} stroke={1.5} />
           </Center>
-        </form>
+          <Center>
+            <Paper radius="md" p={{ base: 'sm', sm: 'xl' }} withBorder {...props}>
+              {!file && (
+                <Text ta="center" fz="sm" mt="xs" c="dimmed">
+                  Selecione o arquivo para importação. Nós aceitamos apennas arquivos <i>.igc</i> com um tamanho de
+                  até 30mb.
+                </Text>
+              )}
+              {file && (
+                <Stack>
+                  <Center>
+                    <IconFile style={{ width: rem(50), height: rem(50) }} stroke={1.5} />
+                  </Center>
+                  <Center>
+                    <Text ta="center" fz="sm" mt="xs" c="dimmed">
+                      {file?.name}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text ta="center" fz="sm" mt="xs" c="dimmed">
+                      {`${(file?.size / 1024 ** 2).toFixed(2)} MB`}
+                    </Text>
+                  </Center>
+                  <Center>
+                    <Text ta="center" fz="sm" mt="xs" c="dimmed">
+                      {file?.type}
+                    </Text>
+                  </Center>
+                </Stack>
+              )}
+            </Paper>
+          </Center>
+          <Center>
+            <FileButton onChange={setFile} accept='igc/igc'>
+              {(props) => (
+                <Button variant='default' size="md" radius="xl" mt="xs" {...props}>
+                  Selecionar arquivo
+                </Button>
+              )}
+            </FileButton>
+          </Center>
+        </Stack>
+        <Center mt="xl">
+          <Button size="md" radius="xl" mt="xs" disabled={!file} onClick={handleSubmit}>
+            Avançar
+          </Button>
+        </Center>
       </Container>
     </>
   );

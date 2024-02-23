@@ -1,12 +1,12 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '../firebase';
 
-export interface GliderSetings {
+export interface GliderSettings {
   corPrimaria: string;
   corLinhas: string;
   corSelete: string;
   corRoupa: string;
-  corCapacet: string;
+  corCapacete: string;
   corViseira: string;
   corLuvas: string;
   corDetalhe1: string;
@@ -15,6 +15,7 @@ export interface GliderSetings {
   tipoRastro: string;
   gliderModel: string;
 }
+
 export interface UserData {
   id: string;
   nome: string;
@@ -46,7 +47,7 @@ export interface UserData {
   photoURL: string | null;
   photoBase64: string | null;
   gliderURL: string | null;
-  gliderSettings: GliderSetings | null;
+  gliderSettings: GliderSettings | null;
 }
 
 const collectionName = 'user_data';

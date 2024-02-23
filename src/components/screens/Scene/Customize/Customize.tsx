@@ -1,20 +1,28 @@
-import { Text, ColorInput, Container, Group, SegmentedControl, SimpleGrid, Button, Title, Center, Card, Paper, Stack, Switch } from "@mantine/core";
-import classes from "./Customize.module.css";
-import { useState } from "react";
-import { useRef } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Button, Card, Center, ColorInput, Container, Group, SimpleGrid, Stack, Switch, Title } from "@mantine/core";
 import { OrbitControls } from "@react-three/drei";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { useEffect, useRef, useState } from "react";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
-import { StorageReference, getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { useStorage } from '~/lib/firebase';
-import { v4 as uuidv4 } from 'uuid';
-import { notifications } from '@mantine/notifications';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import classes from "./Customize.module.css";
 
-import { Material, Mesh, MeshStandardMaterial, Color, BufferGeometry, NormalBufferAttributes, Object3DEventMap } from "three";
-import { useAuthState } from "~/components/contexts/UserContext";
+import { BufferGeometry, Color, Material, Mesh, MeshStandardMaterial, NormalBufferAttributes, Object3DEventMap } from "three";
+import { GliderSettings } from "~/lib/repositories/userDataRepository";
 import { useUserData } from "~/components/contexts/UserDataContext";
-export default function Customize() {
+import { useForm } from "@mantine/form";
+
+export default function Customize(props:
+  {
+    setGliderSetings: React.Dispatch<React.SetStateAction<GliderSettings | null>>,
+    setModel: React.Dispatch<React.SetStateAction<Blob | null>>,
+    definirPadrao: boolean,
+    setDefinirPadrao: React.Dispatch<React.SetStateAction<boolean>>,
+    coresPadrao: boolean,
+    setCoresPadrao: React.Dispatch<React.SetStateAction<boolean>>,
+    close: () => void,
+    confirm: () => void,
+  }
+) {
   let colorsArray = [
     "#63b598", "#ce7d78", "#ea9e70", "#a48a9e", "#c6e1e8", "#648177", "#0d5ac1",
     "#f205e6", "#1c0365", "#14a9ad", "#4ca2f9", "#a4e43f", "#d298e2", "#6119d0",
@@ -57,61 +65,43 @@ export default function Customize() {
     "#f812b3", "#b17fc9", "#8d6c2f", "#d3277a", "#2ca1ae", "#9685eb", "#8a96c6",
     "#dba2e6", "#76fc1b", "#608fa4", "#20f6ba", "#07d7f6", "#dce77a", "#77ecca "]
 
-  const [corPrimaria, setCorPrimaria] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corLinhas, setCorLinhas] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corSelete, setCorSelete] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corRoupa, setCorRoupa] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corCapacete, setCorCapacete] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corViseira, setCorViseira] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corLuvas, setCorLuvas] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corDetalhe1, setCorDetalhe1] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corDetalhe2, setCorDetalhe2] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [corRastro, setCorRastro] = useState(colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-  const [tipoRastro, setTipoRastro] = useState('sem');
-  const [definirPadrao, setDefinirPadrao] = useState(true);
+  const { userData } = useUserData();
 
-  function toggleDefinirPadrao() {
-    setDefinirPadrao(!definirPadrao);
+  interface FormData {
+    corPrimaria: string;
+    corLinhas: string;
+    corSelete: string;
+    corRoupa: string;
+    corCapacete: string;
+    corViseira: string;
+    corLuvas: string;
+    corDetalhe1: string;
+    corDetalhe2: string;
+    corRastro: string;
+    definirPadrao: boolean;
   }
+
+  const form = useForm<FormData>({
+    initialValues: {
+      corPrimaria: userData?.gliderSettings?.corPrimaria || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corLinhas: userData?.gliderSettings?.corLinhas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corSelete: userData?.gliderSettings?.corSelete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corRoupa: userData?.gliderSettings?.corRoupa || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corCapacete: userData?.gliderSettings?.corCapacete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corViseira: userData?.gliderSettings?.corViseira || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corLuvas: userData?.gliderSettings?.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe1: userData?.gliderSettings?.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe2: userData?.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corRastro: userData?.gliderSettings?.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      definirPadrao: false,
+    }
+  });
   function MeshComponent(props: { refMesh: React.MutableRefObject<Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>> }) {
     const fileUrl = "/models/glider_model_sol.glb";
     const gltf = useLoader(GLTFLoader, fileUrl);
     useFrame(() => {
-      props.refMesh.current.children[0].children[0].children.forEach((child, index) => {
-        const part = child as Mesh;
-        const material = part.material as MeshStandardMaterial;
-        switch (material.name) {
-          case 'Primaria':
-            material.color = new Color(corPrimaria);
-            break;
-          case 'Detalhe1':
-            material.color = new Color(corDetalhe1);
-            break;
-          case 'Detalhe2':
-            material.color = new Color(corDetalhe2);
-            break;
-          case 'Linhas':
-            material.color = new Color(corLinhas);
-            break;
-          case 'Selete':
-            material.color = new Color(corSelete);
-            break;
-          case 'Roupa':
-            material.color = new Color(corRoupa);
-            break;
-          case 'Capacete':
-            material.color = new Color(corCapacete);
-            break;
-          case 'Viseira':
-            material.color = new Color(corViseira);
-            break;
-          case 'Luvas':
-            material.color = new Color(corLuvas);
-            break;
-        }
-      });
-    });
-
+      updateColors();
+    })
     return (
       <mesh ref={props.refMesh}>
         <primitive object={gltf.scene} />
@@ -120,69 +110,71 @@ export default function Customize() {
   }
   const mesh = useRef<Mesh>(null!);
 
-  function save() {
+  const handleSubmit = async (cores: FormData) => {
     const exporter = new GLTFExporter();
     exporter.parse(mesh.current, function (gltfJson) {
-      console.log(gltfJson);
       const jsonString = JSON.stringify(gltfJson);
-      console.log(jsonString);
-      const blob = new Blob([jsonString], { type: "application/json" });
-      console.log(blob);
-      uplaoadModel(blob);
+      const model = new Blob([jsonString], { type: "application/json" });
+      const gliderSetings: GliderSettings = {
+        corPrimaria: form.values.corPrimaria,
+        corLinhas: form.values.corLinhas,
+        corSelete: form.values.corSelete,
+        corRoupa: form.values.corRoupa,
+        corCapacete: form.values.corCapacete,
+        corViseira: form.values.corViseira,
+        corLuvas: form.values.corLuvas,
+        corDetalhe1: form.values.corDetalhe1,
+        corDetalhe2: form.values.corDetalhe2,
+        corRastro: form.values.corRastro,
+        tipoRastro: '',
+        gliderModel: ''
+      }
+      if (userData && userData!.gliderSettings) {
+        props.setCoresPadrao(false);
+      }
+      props.setGliderSetings(gliderSetings);
+      props.setModel(model);
+      props.confirm();
+
     }, function (erro) {
       console.log('error', erro)
     });
   }
-  const { state } = useAuthState();
-  const { userData, setUserData } = useUserData();
-  const [file, setFile] = useState<File | null>(null);
-  const [loadForm, setLoadForm] = useState(true)
-  const [isUploading, setIsUploading] = useState(false)
-  const [progressUpload, setProgressUpload] = useState(0)
-  const storage = useStorage();
-
-  function uplaoadModel(blob: Blob) {
-    //open()
-    const uuid = uuidv4()
-    const storageRef = ref(storage, `glider_customized_models/${uuid}.gltf`)
-    const uploadTask = uploadBytesResumable(storageRef, blob)
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        setIsUploading(true)
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-
-        setProgressUpload(progress)
-
-        switch (snapshot.state) {
-          case 'paused':
-            break
-          case 'running':
-            break
-        }
-      },
-      (error) => {
-        notifications.show({
-          color: 'red',
-          title: 'Erro no upload',
-          message: 'Não foi possível fazer o upload do arquivo' + error.message,
-        });
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          console.log('File available at', url);
-          // user.photoURL = url;
-          // setFile(null);
-          // updateFirestore(user).then(() => {
-          //   setIsUploading(false)
-          // });
-        })
-      },
-    )
+  function updateColors() {
+    mesh.current.children[0].children[0].children.forEach((child, index) => {
+      const part = child as Mesh;
+      const material = part.material as MeshStandardMaterial;
+      switch (material.name) {
+        case 'Primaria':
+          material.color = new Color(form.values.corPrimaria);
+          break;
+        case 'Detalhe1':
+          material.color = new Color(form.values.corDetalhe1);
+          break;
+        case 'Detalhe2':
+          material.color = new Color(form.values.corDetalhe2);
+          break;
+        case 'Linhas':
+          material.color = new Color(form.values.corLinhas);
+          break;
+        case 'Selete':
+          material.color = new Color(form.values.corSelete);
+          break;
+        case 'Roupa':
+          material.color = new Color(form.values.corRoupa);
+          break;
+        case 'Capacete':
+          material.color = new Color(form.values.corCapacete);
+          break;
+        case 'Viseira':
+          material.color = new Color(form.values.corViseira);
+          break;
+        case 'Luvas':
+          material.color = new Color(form.values.corLuvas);
+          break;
+      }
+    });
   }
-
   return (
     <>
       <Container>
@@ -194,53 +186,58 @@ export default function Customize() {
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             <Group gap={0}>
               <Card withBorder padding={0} radius="md" className={classes.three_canvas}>
-                <Canvas className='h-3xl w-3xl'>
+                <Canvas>
                   <OrbitControls />
-                  <ambientLight intensity={2} />
+                  <ambientLight intensity={Math.PI / 2} />
+                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
+                  <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
                   <MeshComponent refMesh={mesh} />
                 </Canvas>
               </Card>
             </Group>
             <Group gap={0}>
               <Card withBorder padding="xs" radius="md">
-
                 <Stack gap={0}>
-                  <Title size='h6'> Cor da Asa</Title>
-                  <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                    <ColorInput size="xs" label="Primaria" defaultValue={corPrimaria} onChange={(value) => setCorPrimaria(value)} disallowInput />
-                    <ColorInput size="xs" label="Detalhe 1" defaultValue={corDetalhe1} onChange={(value) => setCorDetalhe1(value)} disallowInput />
-                    <ColorInput size="xs" label="Detalhe 2" defaultValue={corDetalhe2} onChange={(value) => setCorDetalhe2(value)} disallowInput />
-                    <ColorInput size="xs" label="Linhas" defaultValue={corLinhas} onChange={(value) => setCorLinhas(value)} disallowInput />
-                  </SimpleGrid>
-                  <Title size='h6' mt='xs'>Selete</Title>
-                  <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                    <ColorInput size="xs" label="Selete" defaultValue={corSelete} onChange={(value) => setCorSelete(value)} disallowInput />
-                  </SimpleGrid>
-                  <Title size='h6' mt='xs'> Corpo</Title>
-                  <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                    <ColorInput size="xs" label="Roupa" defaultValue={corRoupa} onChange={(value) => setCorRoupa(value)} disallowInput />
-                    <ColorInput size="xs" label="Capacete" defaultValue={corCapacete} onChange={(value) => setCorCapacete(value)} disallowInput />
-                    <ColorInput size="xs" label="Viseira" defaultValue={corViseira} onChange={(value) => setCorViseira(value)} disallowInput />
-                    <ColorInput size="xs" label="Luvas" defaultValue={corLuvas} onChange={(value) => setCorLuvas(value)} disallowInput />
-                  </SimpleGrid>
-                  <Title size='h6' mt='xs'> Rastro</Title>
-                      <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                      <ColorInput size="xs" label="Cor Rastro" defaultValue={corRastro} onChange={(value) => setCorRastro(value)} disallowInput />
+                  <form onSubmit={form.onSubmit((cores) => {
+                    handleSubmit(cores as FormData);
+                  })}>
+                    <Title size='h6'> Cor da Asa</Title>
+                    <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
+                      <ColorInput size="xs" required label="Primaria" value={form.values.corPrimaria} onChange={(event) => form.setFieldValue('corPrimaria', event)} disallowInput />
+                      <ColorInput size="xs" required label="Detalhe 1" value={form.values.corDetalhe1} onChange={(event) => form.setFieldValue('corDetalhe1', event)} disallowInput />
+                      <ColorInput size="xs" required label="Detalhe 2" value={form.values.corDetalhe2} onChange={(event) => form.setFieldValue('corDetalhe2', event)} disallowInput />
+                      <ColorInput size="xs" required label="Linhas" value={form.values.corLinhas} onChange={(event) => form.setFieldValue('corLinhas', event)} disallowInput />
                     </SimpleGrid>
-                  <Group justify="end" wrap="nowrap" m='md'>
-                    <Switch
-                      className={classes.switch}
-                      label="Definir como padrão"
-                      labelPosition="left"
-
-                      size="md"
-                      checked={definirPadrao}
-                      onChange={toggleDefinirPadrao}
-                    />
-                  </Group>
-                  <Center>
-                    <Button fullWidth size="md" radius="xl"  m='sm' onClick={save} >Avançar</Button>
-                  </Center>
+                    <Title size='h6' mt='xs'>Selete</Title>
+                    <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
+                      <ColorInput size="xs" required label="Selete" value={form.values.corSelete} onChange={(event) => form.setFieldValue('corSelete', event)} disallowInput />
+                    </SimpleGrid>
+                    <Title size='h6' mt='xs'> Corpo</Title>
+                    <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
+                      <ColorInput size="xs" required label="Roupa" value={form.values.corRoupa} onChange={(event) => form.setFieldValue('corRoupa', event)} disallowInput />
+                      <ColorInput size="xs" required label="Capacete" value={form.values.corCapacete} onChange={(event) => form.setFieldValue('corCapacete', event)} disallowInput />
+                      <ColorInput size="xs" required label="Viseira" value={form.values.corViseira} onChange={(event) => form.setFieldValue('corViseira', event)} disallowInput />
+                      <ColorInput size="xs" required label="Luvas" value={form.values.corLuvas} onChange={(event) => form.setFieldValue('corLuvas', event)} disallowInput />
+                    </SimpleGrid>
+                    <Title size='h6' mt='xs'> Rastro</Title>
+                    <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
+                      <ColorInput size="xs" required label="Cor Rastro" value={form.values.corRastro} onChange={(event) => form.setFieldValue('corRastro', event)} disallowInput />
+                    </SimpleGrid>
+                    <Group justify="end" wrap="nowrap" m='md'>
+                      <Switch
+                        className={classes.switch}
+                        label="Definir como padrão"
+                        labelPosition="left"
+                        size="md"
+                        checked={form.values.definirPadrao}
+                        onChange={(event) => form.setFieldValue('definirPadrao', event.target.checked)}
+                      />
+                    </Group>
+                    <Center>
+                      <Button size="md" radius="xl" m='sm' onClick={props.close} variant="default">Voltar</Button>
+                      <Button size="md" radius="xl" m='sm' type="submit" >Avançar</Button>
+                    </Center>
+                  </form>
                 </Stack>
               </Card>
             </Group>

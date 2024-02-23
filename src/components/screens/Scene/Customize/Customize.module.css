@@ -6,6 +6,15 @@
   display: inline-block;
 }
 canvas {
-  width: 100%  !important;;
-  height: 100%  !important;;
+  top:0;
+  width: 100vw;
+  height: 57vh;
+}
+.card_viewer{
+  width: 100vw;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }

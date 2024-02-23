@@ -40,7 +40,7 @@ function Main() {
             Ocorreu um erro inesperado ao carregar a página. Procure nosso suporte para mais informações.
             Informe a mensagem abaixo para auxiliar na resolução do problema.
           </Text>
-          <Code className={classes.error_message } block>{props.error.message}</Code>;
+          <Code className={classes.error_message } block>{props.error.message}</Code>
           <Button variant="outline" size="md" mt="xl" className={classes.control} onClick={props.resetErrorBoundary}>
             Volte para a home page
           </Button>
@@ -48,7 +48,7 @@ function Main() {
         <Image src={image} className={classes.desktopImage} />
       </SimpleGrid>
     </Container>
-    );
+    )
   }
 
   return (
