@@ -11,6 +11,7 @@ export interface GliderSettings {
   corLuvas: string;
   corDetalhe1: string;
   corDetalhe2: string;
+  corDetalhe3: string;
   corRastro: string;
   tipoRastro: string;
   gliderModel: string;

@@ -160,18 +160,15 @@ export function HeaderApp() {
             <Text className={classes.link} component={Link} variant='link' to='/'>
               Institucional
             </Text>
-            <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
+            {/* <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
               Seja um piloto
-            </Text>
+            </Text> */}
             <Text className={classes.link} component={Link} variant='link' to='/activity'>
               Atividade
             </Text>
-            <Text className={classes.link} component={Link} variant='link' to='/news'>
+            {/* <Text className={classes.link} component={Link} variant='link' to='/news'>
               Notícias
-            </Text>
-            <Text className={classes.link} component={Link} variant='link' to='/customize'>
-              Customize(teste)
-            </Text>
+            </Text> */}
             {isAuthenticated && (
               <HoverCard position="bottom" radius="md" shadow="md" withinPortal>
                 <HoverCard.Target>
@@ -263,17 +260,14 @@ export function HeaderApp() {
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/'>
             Institucional
           </Text>
-          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
+          {/* <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
             Seja um piloto
-          </Text>
-          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/news'>
+          </Text> */}
+          {/* <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/news'>
             Notícias
-          </Text>
+          </Text> */}
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/activity'>
             Atividade
-          </Text>
-          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/customize'>
-            Customize(Teste)
           </Text>
           {isAuthenticated && (
             <>

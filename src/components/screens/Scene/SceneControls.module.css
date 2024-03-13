@@ -1,6 +1,6 @@
 .wrapper {
     position: absolute;
-    bottom: 28px;
+    bottom: 25px;
     width: 100%;
     height: 50px;
     justify-content: center;
@@ -12,13 +12,26 @@
 }
 
 .button_close {
-    z-index: 30;
+    z-index: 50;
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 10px;
+    right: 10px;
     border-radius: 50%;
 }
 
+.panel_time{
+    z-index: 30;
+    position: absolute;
+    border-radius: 10px 0 0 10px;
+    right: 0;
+    top: 50px;
+    text-align: end;
+    padding: 5px;
+    background-color: alpha( var(--mantine-color-body));
+    .title_time{
+        font-weight: 700;
+    }
+}
 .pill_icon {
     width: rem(22);
     height: rem(22);
@@ -32,13 +45,57 @@
     vertical-align: middle;
     font-size: calc(var(--mantine-font-size-xs)*0.9);
 }
-.stats {
+
+
+.stats_left {
     z-index: 30;
     position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: var(--mantine-color-body);
+    bottom: 88px;
+    background-color: alpha( var(--mantine-color-body));
+    padding:0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    border-radius: 0 10px 10px 0;
+    .gauge {
+        top: -10px;
+        width: 80px;
+        height: 80px;
+        position: relative;
+    }
 }
+
+.stats_right {
+    z-index: 30;
+    position: absolute;
+    border-radius: 10px 0 0 10px;
+    right: 0;
+    bottom: 88px;
+    background-color: alpha( var(--mantine-color-body));
+}
+
+.stats_intro {
+    z-index: 40;
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    left:50%;
+    transform: translate(-50%, 0);
+    background-color: alpha( var(--mantine-color-body));
+}
+
+
+.stats_player_info {
+    z-index: 30;
+    position: fixed;
+    top: 0;
+    left:50%;
+    border-radius: 0 0 10px 10px;
+    transform: translate(-50%, 0);
+    background-color: alpha( var(--mantine-color-body));
+}
+
 .name {
     width: 100px;
     white-space: nowrap;
@@ -49,8 +106,12 @@
         Greycliff CF,
         var(--mantine-font-family);
 }
-.gauge {
-    width: 80px;
-    height: 100px;
-    position: relative;
+
+.cesium-toolbar-button {
+    display: none !important;
+}
+.tracklog_selected {
+    background-color: var(--mantine-primary-color-filled) !important;
+    color: var(--_ai-color, var(--ai-color, var(--mantine-color-white)));
+    font-weight: 700;
 }

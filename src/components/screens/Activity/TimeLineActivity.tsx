@@ -12,8 +12,8 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
     return (
       <Center>
         <Avatar.Group>
-          {props.DateActivity.pilotos.map((item: any) => (
-            <Avatar key={item.id} size='lg' src={item.foto} />
+          {props.DateActivity.pilotos.map((item: any,index:number) => (
+            <Avatar key={index} size='lg' src={item.foto} />
           )).slice(0, limitPilotos)}
           {props.DateActivity.pilotos.length > limitPilotos && <Avatar size='lg'>
             +{props.DateActivity.pilotos.length - limitPilotos}
@@ -53,8 +53,10 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
           <Text fw={500}>{props.DateActivity.dataString}</Text>
           <Group>
             <UnstyledButton
+              component={Link}
               variant="default"
-              size="lg"
+              to={`/scene/ /${props.DateActivity.id}`}
+              size="xl"
               aria-label="Abrir cena do dia"
             >
               <RiMovieLine style={{ width: rem(20) }} />
@@ -63,7 +65,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
               component={Link}
               variant="default"
               to={`/activity/${props.DateActivity.id}`}
-              size="lg"
+              size="xl"
               aria-label="Ir para lista de voos do dia"
             >
               <FaListUl style={{ width: rem(20) }} />

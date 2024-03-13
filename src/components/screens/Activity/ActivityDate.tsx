@@ -49,17 +49,23 @@ export default function ActivityDate() {
           </Title>
 
           <Group>
-            <UnstyledButton variant="default" size="lg" aria-label="Abrir cena do dia">
-              <RiMovieLine style={{ width: rem(20) }} />
+            <UnstyledButton 
+            variant="default" size="xl" 
+            aria-label="Abrir cena do dia"
+            component={Link}
+            to={`/scene/ /${params.id!}`}
+
+            >
+              <RiMovieLine/>
             </UnstyledButton>
             <UnstyledButton
               component={Link}
               to="/activity"
               variant="default"
-              size="lg"
+              size="xl"
               aria-label="Ir para lista de voos do dia"
             >
-              <MdNavigateBefore style={{ width: rem(20) }} />
+              <MdNavigateBefore />
             </UnstyledButton>
           </Group>
         </Group>

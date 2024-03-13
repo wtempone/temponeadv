@@ -1,7 +1,7 @@
-import { Button, Card, Center, ColorInput, Container, Group, SimpleGrid, Stack, Switch, Title } from "@mantine/core";
-import { OrbitControls } from "@react-three/drei";
+import { Button, Card, Center, ColorInput, Container, Group, SimpleGrid, Stack, Switch, Title, Text } from "@mantine/core";
+import { OrbitControls, useGLTF, Text as TextThree } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useDeferredValue, useEffect, useRef, useState } from "react";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import classes from "./Customize.module.css";
@@ -10,6 +10,7 @@ import { BufferGeometry, Color, Material, Mesh, MeshStandardMaterial, NormalBuff
 import { GliderSettings } from "~/lib/repositories/userDataRepository";
 import { useUserData } from "~/components/contexts/UserDataContext";
 import { useForm } from "@mantine/form";
+import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 
 export default function Customize(props:
   {
@@ -67,6 +68,15 @@ export default function Customize(props:
 
   const { userData } = useUserData();
 
+  let models = [
+    '/models/glide_model_air.glb',
+    '/models/glide_model_flow.glb',
+    '/models/glide_model_sol.glb',
+    '/models/glide_model_niv.glb',
+    '/models/glide_model_sky.glb',
+    '/models/glide_model_ozo.glb',
+    '/models/glide_model_gin.glb',
+  ]
   interface FormData {
     corPrimaria: string;
     corLinhas: string;
@@ -77,6 +87,7 @@ export default function Customize(props:
     corLuvas: string;
     corDetalhe1: string;
     corDetalhe2: string;
+    corDetalhe3: string;
     corRastro: string;
     definirPadrao: boolean;
   }
@@ -92,19 +103,31 @@ export default function Customize(props:
       corLuvas: userData?.gliderSettings?.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
       corDetalhe1: userData?.gliderSettings?.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
       corDetalhe2: userData?.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe3: userData?.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
       corRastro: userData?.gliderSettings?.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)],
       definirPadrao: false,
     }
   });
-  function MeshComponent(props: { refMesh: React.MutableRefObject<Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>> }) {
-    const fileUrl = "/models/glider_model_sol.glb";
-    const gltf = useLoader(GLTFLoader, fileUrl);
+  function MeshComponent(props: {
+    refMesh: React.MutableRefObject<Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>>,
+    index?: number
+  }) {
+
+    function Model({ index, ...props }: { index?: number }) {
+      const deferred = useDeferredValue(models[index || 0])
+      const { scene } = useGLTF(deferred)
+      return <primitive object={scene} {...props} />
+    }
+
     useFrame(() => {
       updateColors();
     })
+
     return (
       <mesh ref={props.refMesh}>
-        <primitive object={gltf.scene} />
+        <Suspense>
+          <Model index={props.index} />
+        </Suspense>
       </mesh>
     );
   }
@@ -125,6 +148,7 @@ export default function Customize(props:
         corLuvas: form.values.corLuvas,
         corDetalhe1: form.values.corDetalhe1,
         corDetalhe2: form.values.corDetalhe2,
+        corDetalhe3: form.values.corDetalhe3,
         corRastro: form.values.corRastro,
         tipoRastro: '',
         gliderModel: ''
@@ -141,6 +165,8 @@ export default function Customize(props:
     });
   }
   function updateColors() {
+    if (!mesh.current?.children || mesh.current?.children.length == 0) return;
+    if (!mesh.current?.children[0].children) return;
     mesh.current.children[0].children[0].children.forEach((child, index) => {
       const part = child as Mesh;
       const material = part.material as MeshStandardMaterial;
@@ -153,6 +179,9 @@ export default function Customize(props:
           break;
         case 'Detalhe2':
           material.color = new Color(form.values.corDetalhe2);
+          break;
+        case 'Detalhe3':
+          material.color = new Color(form.values.corDetalhe3);
           break;
         case 'Linhas':
           material.color = new Color(form.values.corLinhas);
@@ -175,6 +204,24 @@ export default function Customize(props:
       }
     });
   }
+  const [index, setIndex] = useState(0);
+
+  function changeNextModel() {
+    if (index === models.length - 1) {
+      setIndex(0);
+    } else {
+      setIndex(index + 1);
+    }
+  }
+  function changePrevModel() {
+    console.log(index)
+    if (index === 0) {
+      setIndex(models.length - 1);
+    } else {
+      setIndex(index - 1);
+    }
+  }
+
   return (
     <>
       <Container>
@@ -184,44 +231,64 @@ export default function Customize(props:
         <Center>
 
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
-            <Group gap={0}>
+            <Stack>
               <Card withBorder padding={0} radius="md" className={classes.three_canvas}>
                 <Canvas>
                   <OrbitControls />
                   <ambientLight intensity={Math.PI / 2} />
                   <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
                   <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-                  <MeshComponent refMesh={mesh} />
+                  <MeshComponent refMesh={mesh} index={index} />
                 </Canvas>
               </Card>
-            </Group>
+              <Group justify="space-around" gap={0} wrap="nowrap">
+                <Button
+                  variant="light"
+                  onClick={changePrevModel}
+                >
+                  <IconArrowLeft size={14} />
+                </Button>
+                <Text ta="center" size="sm" mt="sm"> Escolha o modelo</Text>
+                <Button
+                  variant="light"
+                  onClick={changeNextModel}
+                >
+                  <IconArrowRight size={14} />
+                </Button>
+              </Group>
+            </Stack>
+
             <Group gap={0}>
               <Card withBorder padding="xs" radius="md">
                 <Stack gap={0}>
                   <form onSubmit={form.onSubmit((cores) => {
                     handleSubmit(cores as FormData);
                   })}>
-                    <Title size='h6'> Cor da Asa</Title>
+                    <Title size='h6'> Cores da Asa</Title>
                     <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                      <ColorInput size="xs" required label="Primaria" value={form.values.corPrimaria} onChange={(event) => form.setFieldValue('corPrimaria', event)} disallowInput />
-                      <ColorInput size="xs" required label="Detalhe 1" value={form.values.corDetalhe1} onChange={(event) => form.setFieldValue('corDetalhe1', event)} disallowInput />
-                      <ColorInput size="xs" required label="Detalhe 2" value={form.values.corDetalhe2} onChange={(event) => form.setFieldValue('corDetalhe2', event)} disallowInput />
+                      <ColorInput size="xs" required label="Principal" value={form.values.corPrimaria} onChange={(event) => form.setFieldValue('corPrimaria', event)} disallowInput />
+                      <ColorInput size="xs" required label="Desenho 1" value={form.values.corDetalhe1} onChange={(event) => form.setFieldValue('corDetalhe1', event)} disallowInput />
+                      <ColorInput size="xs" required label="Desenho 2" value={form.values.corDetalhe2} onChange={(event) => form.setFieldValue('corDetalhe2', event)} disallowInput />
+                      <ColorInput size="xs" required label="Desenho 3" value={form.values.corDetalhe3} onChange={(event) => form.setFieldValue('corDetalhe3', event)} disallowInput />
+                    </SimpleGrid>
+                    <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
                       <ColorInput size="xs" required label="Linhas" value={form.values.corLinhas} onChange={(event) => form.setFieldValue('corLinhas', event)} disallowInput />
+
                     </SimpleGrid>
                     <Title size='h6' mt='xs'>Selete</Title>
                     <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
                       <ColorInput size="xs" required label="Selete" value={form.values.corSelete} onChange={(event) => form.setFieldValue('corSelete', event)} disallowInput />
                     </SimpleGrid>
-                    <Title size='h6' mt='xs'> Corpo</Title>
+                    <Title size='h6' mt='xs'> Piloto</Title>
                     <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
                       <ColorInput size="xs" required label="Roupa" value={form.values.corRoupa} onChange={(event) => form.setFieldValue('corRoupa', event)} disallowInput />
                       <ColorInput size="xs" required label="Capacete" value={form.values.corCapacete} onChange={(event) => form.setFieldValue('corCapacete', event)} disallowInput />
                       <ColorInput size="xs" required label="Viseira" value={form.values.corViseira} onChange={(event) => form.setFieldValue('corViseira', event)} disallowInput />
                       <ColorInput size="xs" required label="Luvas" value={form.values.corLuvas} onChange={(event) => form.setFieldValue('corLuvas', event)} disallowInput />
                     </SimpleGrid>
-                    <Title size='h6' mt='xs'> Rastro</Title>
+                    <Title size='h6' mt='xs'> Caminho</Title>
                     <SimpleGrid spacing="xs" verticalSpacing="xs" cols={2} >
-                      <ColorInput size="xs" required label="Cor Rastro" value={form.values.corRastro} onChange={(event) => form.setFieldValue('corRastro', event)} disallowInput />
+                      <ColorInput size="xs" required label="Cor Caminho" value={form.values.corRastro} onChange={(event) => form.setFieldValue('corRastro', event)} disallowInput />
                     </SimpleGrid>
                     <Group justify="end" wrap="nowrap" m='md'>
                       <Switch

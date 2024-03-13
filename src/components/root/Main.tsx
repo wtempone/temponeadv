@@ -16,7 +16,7 @@ function Main() {
   useEffect(() => {
     setupFirebase();
     Ion.defaultAccessToken = import.meta.env.VITE_ION_ACCESS_TOKEN;
-    GoogleMaps.defaultApiKey = import.meta.env.VITE_GOOGLEMAPS_APIKEY;
+    //GoogleMaps.defaultApiKey = import.meta.env.VITE_GOOGLEMAPS_APIKEY;
 
     const auth = getAuth();
 

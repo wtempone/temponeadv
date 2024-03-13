@@ -19,6 +19,7 @@ import { GliderSettings } from '~/lib/repositories/userDataRepository';
 import { GetTrackLog } from '~/lib/repositories/userTrackLogRepository';
 import Customize from '../Scene/Customize/Customize';
 import NewScene from '../Scene/NewScene';
+import { DateInput, DateTimePicker } from '@mantine/dates';
 
 export default function UploadTrackFile(props: PaperProps) {
   const [file, setFile] = useState<File | null>(null);
@@ -31,7 +32,7 @@ export default function UploadTrackFile(props: PaperProps) {
   const [coresPadrao, setCoresPadrao] = useState<boolean>(true);
   const [gliderSetings, setGliderSetings] = useState<GliderSettings | null>(null);
   const [model, setModel] = useState<Blob | null>(null);
-
+  const [datainicio, setDataInicio] = useState<Date | null>(null);
   function paseFile(file: File): Promise<IGCParser.IGCFile | undefined> {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -92,7 +93,19 @@ export default function UploadTrackFile(props: PaperProps) {
   const handleSubmit = async () => {
     if (!file) return;
     const dataFligth = await paseFile(file);
+
     if (dataFligth) {
+      
+      if (datainicio) {
+        const data = new Date(dataFligth.fixes[0].timestamp);
+        const resultArray: number[] = [];
+        let incio = datainicio.getTime();
+        const primeiraData = dataFligth.fixes[0].timestamp;
+        const fixes = dataFligth.fixes.map((fix) => ( { ...fix, timestamp: incio + (fix.timestamp - primeiraData) }));
+        dataFligth.fixes = fixes;
+      }
+
+
       const valid = await checkValidFile(dataFligth);
       if (!valid) {
         return;
@@ -123,7 +136,7 @@ export default function UploadTrackFile(props: PaperProps) {
           setDefinirPadrao={setDefinirPadrao}
           definirPadrao={definirPadrao}
           coresPadrao={coresPadrao}
-          setCoresPadrao={setCoresPadrao} 
+          setCoresPadrao={setCoresPadrao}
           close={closeCustomize}
           confirm={handleCustomizeConfirm}
         />
@@ -188,13 +201,21 @@ export default function UploadTrackFile(props: PaperProps) {
             </Paper>
           </Center>
           <Center>
-            <FileButton onChange={setFile} accept='igc/igc'>
+            <FileButton onChange={setFile} accept='*/*'>
               {(props) => (
                 <Button variant='default' size="md" radius="xl" mt="xs" {...props}>
                   Selecionar arquivo
                 </Button>
               )}
             </FileButton>
+          </Center>
+          <Center>
+            <DateTimePicker 
+              value={datainicio}
+              onChange={setDataInicio}
+              label="Data de início"
+              placeholder="Selecione a data de início"
+            />
           </Center>
         </Stack>
         <Center mt="xl">

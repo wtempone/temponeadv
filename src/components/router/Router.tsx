@@ -97,7 +97,7 @@ const InnerRouter = () => {
         },
 
         {
-          path: '/scene/:id',
+          path: '/scene/:id?/:date?',
           element: <SceneScreen />,
         },
         {

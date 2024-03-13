@@ -5,7 +5,7 @@ import { GetUserData, UserData, GliderSettings, DefineUserData } from './userDat
 import IGCParser from 'igc-parser';
 import dayjs from 'dayjs';
 import { DateCompact, fullNamedDateString, millisecondsToTime, tsFBToDate, getDayDates } from '~/components/shared/helpers';
-import { Cartesian3, JulianDate, SampledPositionProperty, VelocityVectorProperty } from 'cesium';
+import { Cartesian3, Cartographic, EllipsoidGeodesic, JulianDate, SampledPositionProperty, VelocityVectorProperty } from 'cesium';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { useStorage } from '~/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -50,6 +50,8 @@ export interface TrackLogData {
   velocityProperties: Array<Propertie>;
   gliderURL: string | null;
   ascProperties: Array<Propertie>;
+  distanceAccProperties: Array<Propertie>;
+  distanceDecProperties: Array<Propertie>;
 }
 function reduzQuantidadedePontos(pontos: IGCParser.BRecord[], quantidade: number) {
   const pontosFiltrados = pontos.filter((ponto, index, array) => {
@@ -58,7 +60,7 @@ function reduzQuantidadedePontos(pontos: IGCParser.BRecord[], quantidade: number
   return pontosFiltrados;
 }
 
-function calculaVelocidades(pontos: IGCParser.BRecord[]) {
+function calculaPropriedades(pontos: IGCParser.BRecord[]) {
   const position = new SampledPositionProperty();
 
   const velocityVectorProperty = new VelocityVectorProperty(
@@ -115,38 +117,87 @@ function calculaVelocidades(pontos: IGCParser.BRecord[]) {
     const propertie: Propertie = { interval: time.toString(), number: Number(metersPerSecond.toFixed(2)) };
     ascProperties.push(propertie);
   }
-  return { velocityProperties, ascProperties };
+  const distanceAccProperties: Array<Propertie> = [];;
+  let distanceAcc = 0;
+  for (let i = 0; i < pontos.length; i++) {
+    let propertie: Propertie;
+    const time = JulianDate.fromDate(new Date(pontos[i].timestamp!));
+    if (i > 0) {
+      const ponto1 = Cartographic.fromDegrees(pontos[i - 1].longitude, pontos[i - 1].latitude, pontos[i - 1].gpsAltitude!);
+      const ponto2 = Cartographic.fromDegrees(pontos[i].longitude, pontos[i].latitude, pontos[i].gpsAltitude!);
+      const geodesic = new EllipsoidGeodesic();
+      geodesic.setEndPoints(ponto1, ponto2);
+      distanceAcc += geodesic.surfaceDistance;
+      propertie = { interval: time.toString(), number: Number(distanceAcc.toFixed(0)) };
+    } else {
+      propertie = { interval: time.toString(), number: 0 };
+    }
+    distanceAccProperties.push(propertie);
+  }
+  const distanceDecProperties: Array<Propertie> = [];;
+  for (let i = 0; i < pontos.length; i++) {
+    let propertie: Propertie;
+    const time = JulianDate.fromDate(new Date(pontos[i].timestamp!));
+    if (i > 0) {
+      const ponto1 = Cartographic.fromDegrees(pontos[0].longitude, pontos[0].latitude, pontos[0].gpsAltitude!);
+      const ponto2 = Cartographic.fromDegrees(pontos[i].longitude, pontos[i].latitude, pontos[i].gpsAltitude!);
+      const geodesic = new EllipsoidGeodesic();
+      geodesic.setEndPoints(ponto1, ponto2);
+      propertie = { interval: time.toString(), number: Number(geodesic.surfaceDistance.toFixed(0)) };
+    } else {
+      propertie = { interval: time.toString(), number: 0 };
+    }
+    distanceDecProperties.push(propertie);
+  }
+  return { velocityProperties, ascProperties, distanceAccProperties, distanceDecProperties };
 }
 
-function eliminaVelocidadesIrrelevantes(flightPoints: IGCParser.BRecord[], velocityProperties: Array<Propertie>, ascProperties: Array<Propertie>) {
-  const velocidades = velocityProperties;
-  const asc = ascProperties;
+function eliminaVelocidadesIrrelevantes(velocityTakeoff: number,velocityLanding: number, flightPoints: IGCParser.BRecord[], velocityProperties: Array<Propertie>, ascProperties: Array<Propertie>,distanceAccProperties: Array<Propertie>,distanceDecProperties: Array<Propertie>) {
   const pontosFiltrados = Array<IGCParser.BRecord>();
-  const velocidadesFiltradas: Array<Propertie> = [];;
-  const ascFiltradas: Array<Propertie> = [];;
+  const velocidadesFiltradas: Array<Propertie> = [];
+  const ascFiltradas: Array<Propertie> = [];
+  const disctanceAccFiltradas: Array<Propertie> = [];
+  const disctanceDecFiltradas: Array<Propertie> = [];
   let inicio = false;
+  
   for (let i = 0; i < flightPoints.length; i++) {
-    if (velocidades[i].number > 6 && asc[i].number != 0) {
-      if (inicio === false) {
-        for (let j = i - 1; j >= 0; j--) {
-          pontosFiltrados.push(flightPoints[i]);
-          velocidadesFiltradas.push(velocidades[i]);
-          ascFiltradas.push(asc[i]);
-        }
+    if (velocityProperties[i].number > velocityTakeoff) {
+      if (!inicio) {
         inicio = true;
       }
+    }
+    if (inicio) {
       pontosFiltrados.push(flightPoints[i]);
-      velocidadesFiltradas.push(velocidades[i]);
-      ascFiltradas.push(asc[i]);
+      velocidadesFiltradas.push(velocityProperties[i]);
+      ascFiltradas.push(ascProperties[i]);
+      disctanceAccFiltradas.push(distanceAccProperties[i]);
+      disctanceDecFiltradas.push(distanceDecProperties[i]);
     }
   }
+
+  let final = false;
+
   const lastPoint = pontosFiltrados.length - 1
-  for (let i = lastPoint; i < flightPoints.length; i++) {
-    pontosFiltrados.push(flightPoints[lastPoint]);
-    velocidadesFiltradas.push(velocidades[lastPoint]);
-    ascFiltradas.push(asc[lastPoint]);
+  for (let i = lastPoint; i >= 0; i--) {
+    if (velocityProperties[i].number > velocityLanding) {
+      if (!final) {
+        for (let j = i + 1; j <= lastPoint; j++) {
+          pontosFiltrados[j] = flightPoints[i];
+          velocidadesFiltradas[j] = velocityProperties[i];
+          ascFiltradas[j] = ascProperties[i];
+          disctanceAccFiltradas[j] = distanceAccProperties[i];
+          disctanceDecFiltradas[j] = distanceDecProperties[i];
+        }
+        final = true;
+      } else {
+        break;
+      }
+    }
+    if (final) {
+      break;
+    }
   }
-  return { flightPointsFiltrados: pontosFiltrados, velocidadesFiltradas, ascFiltradas };
+  return { flightPointsFiltrados: pontosFiltrados, velocidadesFiltradas, ascFiltradas, disctanceAccFiltradas: disctanceAccFiltradas, disctanceDecFiltradas: disctanceDecFiltradas };
 }
 
 function uploadBlob(path: string, file: Blob): Promise<string | undefined> {
@@ -177,16 +228,18 @@ export const CreateNewTrackLog = async (
   userId: string,
   gliderSettings: GliderSettings,
   model: Blob,
-  flight: IGCParser.IGCFile
+  flight: IGCParser.IGCFile,
 ): Promise<TrackLog> => {
 
   let points = flight.fixes;
-  points = reduzQuantidadedePontos(points, 3);
-  const calculados = calculaVelocidades(points);
-  const filtrados = eliminaVelocidadesIrrelevantes(points, calculados.velocityProperties, calculados.ascProperties);
+  //points = reduzQuantidadedePontos(points, 3);
+  const calculados = calculaPropriedades(points);
+  const filtrados = eliminaVelocidadesIrrelevantes(7, 10, points, calculados.velocityProperties, calculados.ascProperties, calculados.distanceAccProperties, calculados.distanceDecProperties);
   points = filtrados.flightPointsFiltrados;
   const velocityProperties = filtrados.velocidadesFiltradas;
   const ascProperties = filtrados.ascFiltradas;
+  const distanceAccProperties = filtrados.disctanceAccFiltradas;
+  const distanceDecProperties = filtrados.disctanceDecFiltradas;
   const altitudes = points.map((fix) => fix.gpsAltitude!);
   const maxGain = Math.max(...altitudes) - altitudes[0];
   const startDate = new Date(points[0].timestamp);
@@ -194,7 +247,7 @@ export const CreateNewTrackLog = async (
   const duration = endDate.getTime() - startDate.getTime();
   const userData = await GetUserData(userId);
   userData!.gliderSettings = gliderSettings;
-  const flightPoints:Array<FlightPoints> = points.map((fix) => {
+  const flightPoints: Array<FlightPoints> = points.map((fix) => {
     return {
       gpsAltitude: fix.gpsAltitude!,
       latitude: fix.latitude,
@@ -209,6 +262,8 @@ export const CreateNewTrackLog = async (
     flightPoints: flightPoints,
     velocityProperties: velocityProperties,
     ascProperties: ascProperties,
+    distanceAccProperties: distanceAccProperties,
+    distanceDecProperties: distanceDecProperties,
     gliderURL: URL.createObjectURL(model)
   };
   const tracklog: TrackLog = {
@@ -247,22 +302,15 @@ export const AddTrackLog = async (
   let modelPath;
   tracklog.photoURL = null;
   if (definirPadrao) {
-    modelPath = await uploadBlob(`glider_default/${tracklog.userId}.gltf`, model);
     const userData = await GetUserData(tracklog.userId);
-    userData!.gliderURL = modelPath!;
     userData!.gliderSettings = gliderSettings;
     await DefineUserData(userData!.id, userData!);
-    tracklog.trackLogData!.gliderURL = userData!.gliderURL!;
-  } else {
-    if (usarPadrao) {
-      const userData = await GetUserData(tracklog.userId);
-      tracklog.trackLogData!.gliderURL = userData!.gliderURL!;
-    } else {
-      let myuuid = uuidv4();
-      modelPath = await uploadBlob(`glider_customized/${myuuid}.gltf`, model);
-      tracklog.trackLogData!.gliderURL = modelPath!;
-    }
   }
+
+  let myuuid = uuidv4();
+  modelPath = await uploadBlob(`glider_customized/${myuuid}.gltf`, model);
+  tracklog.trackLogData!.gliderURL = modelPath!;
+
   const tracklog_tumb = await uploadBlob(`tracklog_thumb/${tracklog.id}`, corverPhoto);
   tracklog.photoURL = tracklog_tumb!;
   const tracklogData = tracklog.trackLogData;
@@ -272,9 +320,7 @@ export const AddTrackLog = async (
   const docRef = doc(firestore, collectionTracklog, tracklog.id);
   const task = setDoc(docRef, { ...tracklog });
   const docDataRef = doc(firestore, collectionTracklogData, tracklog.id);
-  debugger;
   const taskData = setDoc(docDataRef, { ...tracklogData });
-
   return task;
 };
 
@@ -436,7 +482,7 @@ export const ListTrackLogUserData = async (data: Date) => {
   }
 };
 // obtem todos os dados do tracklog, dados do usuario e tracklogData com coordenadas para abrir mapa do dia
-export const ListTrackLogDataUserData = async (data: Date) => {
+export const ListCompleteTrackLog = async (data: Date): Promise<Array<any> | undefined> => {
   const firestore = useFirestore();
   const { startDate, endDate } = getDayDates(data);
 

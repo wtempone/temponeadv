@@ -1,15 +1,18 @@
-import { CameraEventType, Cartesian3, Viewer as CesiumViewer, Color, ColorMaterialProperty, CzmlDataSource, Entity, GoogleMaps, JulianDate, SampledPositionProperty, VelocityVectorProperty, createGooglePhotorealistic3DTileset, createWorldTerrainAsync } from 'cesium';
+import { Button, Card, Center, Container, LoadingOverlay, SimpleGrid, Stack, Text, Textarea, Title } from '@mantine/core';
+import axios from 'axios';
+import { Cartesian3, Viewer as CesiumViewer, CzmlDataSource, ImageryLayer, JulianDate, Timeline, createGooglePhotorealistic3DTileset, createWorldTerrainAsync } from 'cesium';
 import IGCParser from 'igc-parser';
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CesiumComponentRef, Viewer } from 'resium';
-import { AddTrackLog, CreateNewTrackLog, GetCompleteTrackLog, TrackLog } from '~/lib/repositories/userTrackLogRepository';
-import classes from './Scene.module.css';
-import { SceneControls } from './SceneControls';
-import { GliderSettings as GliderSettings } from '~/lib/repositories/userDataRepository';
 import { useUserData } from '~/components/contexts/UserDataContext';
-import { Text, Button, Card, Center, Container, Group, SimpleGrid, Stack, Textarea, Title } from '@mantine/core';
-import axios from 'axios';
+import { GliderSettings } from '~/lib/repositories/userDataRepository';
+import { AddTrackLog, CreateNewTrackLog, TrackLog } from '~/lib/repositories/userTrackLogRepository';
+import classes from './Scene.module.css';
+import { DateInput, TimeInput } from '@mantine/dates';
+import { LoadingMain } from '~/components/shared/Loading';
+import { useDisclosure } from '@mantine/hooks';
+
 
 const args = {
   timeline: true,
@@ -21,7 +24,7 @@ const args = {
   homeButton: false,
   sceneModePicker: false,
   projectionPicker: false,
-  baseLayerPicker: true,
+  baseLayerPicker: false,
   navigationHelpButton: false,
   fullscreenButton: false,
   vrButton: false,
@@ -36,6 +39,7 @@ export default function NewScene(props: {
   definirPadrao: boolean,
   flight: IGCParser.IGCFile | null
 }) {
+
 
   const ref = useRef<CesiumComponentRef<CesiumViewer>>(null);
   const [currentCzml, setCurrentCzml] = useState<any>(null);
@@ -78,12 +82,21 @@ export default function NewScene(props: {
   }, [ref.current]);
 
   async function configureScene() {
-    console.log('configurando cena')
+    console.log('configurando cena');
+
     setCenaConfigurada(true);
     const viewer = ref.current!.cesiumElement;
+    
     //configureGoogleTerrain(ref);
-    configureTerrain(ref);
+    configureTerrain();
     if (currentCzml) {
+
+      ref.current!.cesiumElement!.scene.globe.depthTestAgainstTerrain = true;
+      ref.current!.cesiumElement!.scene.globe.show = true;
+      const imageryLayer = ImageryLayer.fromWorldImagery({});
+      ref.current!.cesiumElement!.scene.imageryLayers.add(imageryLayer)
+      const terrainProvider = await createWorldTerrainAsync();
+      ref.current!.cesiumElement!.terrainProvider = terrainProvider;
 
       const dataSourcePromise = await CzmlDataSource.load(currentCzml);
       await viewer!.dataSources.add(dataSourcePromise);
@@ -102,16 +115,22 @@ export default function NewScene(props: {
         viewer!.scene.screenSpaceCameraController.enableCollisionDetection = true;
         viewer!.scene.screenSpaceCameraController.minimumZoomDistance = 5;
         viewer!.scene.screenSpaceCameraController.maximumZoomDistance = 1200;
+        toggle();
       }
     } else {
       console.log('trackEntity not found');
     }
   }
-  async function configureTerrain(viewerRef: React.RefObject<CesiumComponentRef<CesiumViewer>>) {
+  async function configureTerrain() {
+    ref.current!.cesiumElement!.scene.globe.depthTestAgainstTerrain = true;
+    ref.current!.cesiumElement!.scene.globe.show = true;
+    const imageryLayer = ImageryLayer.fromWorldImagery({});
+    ref.current!.cesiumElement!.scene.imageryLayers.add(imageryLayer)
     const terrainProvider = await createWorldTerrainAsync();
-    viewerRef.current!.cesiumElement!.terrainProvider = terrainProvider;
+    ref.current!.cesiumElement!.terrainProvider = terrainProvider;
   }
-  async function configureGoogleTerrain(viewerRef: React.RefObject<CesiumComponentRef<CesiumViewer>>) {
+  
+  async function configureGoogleTerrain() {
     try {
       const tileset = await createGooglePhotorealistic3DTileset(import.meta.env.VITE_GOOGLEMAPS_APIKEY, {
         skipLevelOfDetail: true,
@@ -123,19 +142,10 @@ export default function NewScene(props: {
         cullWithChildrenBounds: true,
         showCreditsOnScreen: true,
       });
-      await viewerRef!.current!.cesiumElement!.scene.primitives.add(tileset);
+      await ref!.current!.cesiumElement!.scene.primitives.add(tileset);
     } catch (error) {
       throw error
     }
-  }
-
-  function formataCustomPropertie(customProperties: Array<any>) {
-    const properties: Array<any> = [];
-    for (let i = 0; i < customProperties.length; i++) {
-      properties.push(customProperties[i].interval);
-      properties.push(customProperties[i].number);
-    }
-    return properties;
   }
 
   async function newSceneCZML() {
@@ -146,10 +156,6 @@ export default function NewScene(props: {
       props.flight!
     )
     setTracklog(tracklog);
-    const customVelocity = formataCustomPropertie(tracklog.trackLogData!.velocityProperties);
-    const customAsc = formataCustomPropertie(tracklog.trackLogData!.ascProperties);
-
-    const contTracklog = tracklog.trackLogData!.flightPoints.length;
     const lastPoints = tracklog.trackLogData!.flightPoints.length;
     const initialDateScene = JulianDate.fromDate(new Date(tracklog.trackLogData?.flightPoints[0].timestamp!));
     const endDateScene = JulianDate.fromDate(
@@ -171,6 +177,7 @@ export default function NewScene(props: {
     );
     const availability = start.toString() + '/' + end.toString();
     let flightPoints = tracklog.trackLogData!.flightPoints;
+    
     const degrees = flightPoints.map((point: any) => {
       return [
         JulianDate.fromDate(new Date(point.timestamp!)).toString(),
@@ -198,14 +205,6 @@ export default function NewScene(props: {
         interpolationAlgorithm: 'LAGRANGE',
         interpolationDegree: 3,
       },
-      properties: {
-        velocidade: {
-          number: customVelocity,
-        },
-        ascencao: {
-          number: customAsc,
-        },
-      }
     };
     const czml = [
       {
@@ -222,6 +221,8 @@ export default function NewScene(props: {
     window.history.back();
   }
   function save() {
+    if (descricao === '') return;
+    toggle();
     ref.current?.cesiumElement!.render();
     ref.current?.cesiumElement!.canvas.toBlob((corverPhoto) => {
       tracklog!.description = descricao!;
@@ -234,12 +235,16 @@ export default function NewScene(props: {
         corverPhoto!,
         props.gliderSettings!,
       ).then(() => {
+        toggle();
         navigate('/activity');
       });
 
     });
   }
+  const [visible, { toggle }] = useDisclosure(true);
+
   return <>
+    <LoadingOverlay visible={visible} overlayProps={{ blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
     <Container>
       <Center p='xs'>
         <Title size='h5'>Escolha uma capa e descreva seu voo</Title>
@@ -278,7 +283,7 @@ export default function NewScene(props: {
               </SimpleGrid>
               <Center>
                 <Button size="md" radius="xl" m='sm' onClick={close} variant="default">Voltar</Button>
-                <Button size="md" radius="xl" m='sm' onClick={save} >Publicar</Button>
+                <Button size="md" radius="xl" m='sm' onClick={save} disabled={!descricao}>Publicar</Button>
               </Center>
             </Stack>
           </Card>
