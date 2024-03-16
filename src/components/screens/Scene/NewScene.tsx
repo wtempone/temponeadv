@@ -35,9 +35,11 @@ const args = {
 export default function NewScene(props: {
   gliderSettings: GliderSettings | null,
   model: Blob | null,
-  usarPadrao: boolean,
-  definirPadrao: boolean,
-  flight: IGCParser.IGCFile | null
+  flight: IGCParser.IGCFile | null,
+  setTracklog: React.Dispatch<React.SetStateAction<TrackLog | null>>,
+  setImagemCapa: React.Dispatch<React.SetStateAction<Blob | null>>,
+  confirm: () => void,
+  close: () => void,
 }) {
 
 
@@ -48,7 +50,6 @@ export default function NewScene(props: {
   const [cenaConfigurada, setCenaConfigurada] = useState<boolean>(false);
   const [tracklog, setTracklog] = useState<TrackLog | null>(null);
   const { userData } = useUserData();
-  const navigate = useNavigate();
 
   async function createNewScene() {
     console.log('criando nova cena');
@@ -218,40 +219,32 @@ export default function NewScene(props: {
     return czml;
   }
   function close() {
-    window.history.back();
+    props.close();
   }
-  function save() {
+  function avancar() {
     if (descricao === '') return;
-    toggle();
     ref.current?.cesiumElement!.render();
     ref.current?.cesiumElement!.canvas.toBlob((corverPhoto) => {
+      tracklog!.photoCapaURL = URL.createObjectURL(corverPhoto!);
       tracklog!.description = descricao!;
       tracklog!.place = currentLocation;
-      AddTrackLog(
-        tracklog!,
-        props.model!,
-        props.usarPadrao,
-        props.definirPadrao,
-        corverPhoto!,
-        props.gliderSettings!,
-      ).then(() => {
-        toggle();
-        navigate('/activity');
-      });
-
+      props.setTracklog(tracklog!);
+      props.setImagemCapa(corverPhoto!);
+      props.confirm();
     });
+
   }
   const [visible, { toggle }] = useDisclosure(true);
 
   return <>
     <LoadingOverlay visible={visible} overlayProps={{ blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
-    <Container>
+    <Container className={classes.container_viewer}>
       <Center p='xs'>
         <Title size='h5'>Escolha uma capa e descreva seu voo</Title>
       </Center>
       <Center>
-        <Stack className={classes.card_viewer}>
-          <Card withBorder radius="md" className={classes.card_viewer}>
+        <Stack gap={0} className={classes.card_viewer}>
+          <Card p={0} m={0} radius={0} className={classes.card_viewer}>
             {currentCzml && (
               <Viewer
                 className={classes.viewer}
@@ -263,7 +256,7 @@ export default function NewScene(props: {
               </Viewer>
             )}
           </Card>
-          <Card withBorder padding="xs" radius="md" className={classes.card_viewer}>
+          <Card withBorder padding="xs" radius="md"  mt='sm' className={classes.card_viewer}>
             <Stack >
               <SimpleGrid spacing="xs" verticalSpacing="xs" cols={1} >
                 <Stack>
@@ -283,7 +276,7 @@ export default function NewScene(props: {
               </SimpleGrid>
               <Center>
                 <Button size="md" radius="xl" m='sm' onClick={close} variant="default">Voltar</Button>
-                <Button size="md" radius="xl" m='sm' onClick={save} disabled={!descricao}>Publicar</Button>
+                <Button size="md" radius="xl" m='sm' onClick={avancar} disabled={!descricao}>Avançar</Button>
               </Center>
             </Stack>
           </Card>

@@ -7,3 +7,12 @@
   height: auto;
 }
 
+.container_viewer {
+  padding-right: calc(var(--mantine-spacing-xl) * 3);
+  padding-left: calc(var(--mantine-spacing-xl) * 3);
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    padding-right: 0;
+    padding-left: 0; 
+  }
+}

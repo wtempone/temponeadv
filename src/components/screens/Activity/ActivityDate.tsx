@@ -7,7 +7,7 @@ import { fullNamedDateString, stringToDate } from '~/components/shared/helpers';
 import { ListTrackLogUserData } from '~/lib/repositories/userTrackLogRepository';
 import ItemtActivity from './ItemActivity';
 import { RiMovieLine } from 'react-icons/ri';
-import { FaListUl } from 'react-icons/fa';
+import { FaArrowLeft, FaListUl, FaPlay } from 'react-icons/fa';
 import { MdNavigateBefore } from 'react-icons/md';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
@@ -56,7 +56,7 @@ export default function ActivityDate() {
             to={`/scene/ /${params.id!}`}
 
             >
-              <RiMovieLine/>
+              <FaPlay/>
             </UnstyledButton>
             <UnstyledButton
               component={Link}
@@ -65,7 +65,7 @@ export default function ActivityDate() {
               size="xl"
               aria-label="Ir para lista de voos do dia"
             >
-              <MdNavigateBefore />
+              <FaArrowLeft  />
             </UnstyledButton>
           </Group>
         </Group>

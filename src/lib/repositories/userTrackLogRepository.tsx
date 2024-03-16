@@ -6,9 +6,10 @@ import IGCParser from 'igc-parser';
 import dayjs from 'dayjs';
 import { DateCompact, fullNamedDateString, millisecondsToTime, tsFBToDate, getDayDates } from '~/components/shared/helpers';
 import { Cartesian3, Cartographic, EllipsoidGeodesic, JulianDate, SampledPositionProperty, VelocityVectorProperty } from 'cesium';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, uploadBytesResumable, uploadString } from 'firebase/storage';
 import { useStorage } from '~/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
+import { uploadBase64, uploadBlob } from '~/components/shared/UtilsStorage';
 
 export interface Propertie {
   interval: string;
@@ -36,11 +37,13 @@ export interface TrackLog {
   score: number | null;
   duration: number | null;
   maxGain: number | null;
-  photoURL: string | null;
+  photoCapaURL: string | null;
   trackLogData: TrackLogData | null;
   userData: UserData | null;
   description: string | null;
   place: string | null;
+  photosURL: Array<string | undefined> | null;
+
 }
 
 export interface TrackLogData {
@@ -152,14 +155,14 @@ function calculaPropriedades(pontos: IGCParser.BRecord[]) {
   return { velocityProperties, ascProperties, distanceAccProperties, distanceDecProperties };
 }
 
-function eliminaVelocidadesIrrelevantes(velocityTakeoff: number,velocityLanding: number, flightPoints: IGCParser.BRecord[], velocityProperties: Array<Propertie>, ascProperties: Array<Propertie>,distanceAccProperties: Array<Propertie>,distanceDecProperties: Array<Propertie>) {
+function eliminaVelocidadesIrrelevantes(velocityTakeoff: number, velocityLanding: number, flightPoints: IGCParser.BRecord[], velocityProperties: Array<Propertie>, ascProperties: Array<Propertie>, distanceAccProperties: Array<Propertie>, distanceDecProperties: Array<Propertie>) {
   const pontosFiltrados = Array<IGCParser.BRecord>();
   const velocidadesFiltradas: Array<Propertie> = [];
   const ascFiltradas: Array<Propertie> = [];
   const disctanceAccFiltradas: Array<Propertie> = [];
   const disctanceDecFiltradas: Array<Propertie> = [];
   let inicio = false;
-  
+
   for (let i = 0; i < flightPoints.length; i++) {
     if (velocityProperties[i].number > velocityTakeoff) {
       if (!inicio) {
@@ -198,27 +201,6 @@ function eliminaVelocidadesIrrelevantes(velocityTakeoff: number,velocityLanding:
     }
   }
   return { flightPointsFiltrados: pontosFiltrados, velocidadesFiltradas, ascFiltradas, disctanceAccFiltradas: disctanceAccFiltradas, disctanceDecFiltradas: disctanceDecFiltradas };
-}
-
-function uploadBlob(path: string, file: Blob): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    const storage = useStorage();
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-      },
-      (error) => {
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          resolve(url);
-        })
-      },
-    )
-  });
 }
 
 const collectionTracklog = 'tracklog';
@@ -281,10 +263,11 @@ export const CreateNewTrackLog = async (
     score: 0,
     duration: duration,
     maxGain: maxGain,
-    photoURL: null,
+    photoCapaURL: null,
     trackLogData: tracklogData,
     userData: userData!,
     description: null,
+    photosURL:null,
     place: null,
   };
   return tracklog;
@@ -294,25 +277,32 @@ export const CreateNewTrackLog = async (
 export const AddTrackLog = async (
   tracklog: TrackLog,
   model: Blob,
-  usarPadrao: boolean,
   definirPadrao: boolean,
   corverPhoto: Blob,
   gliderSettings: GliderSettings,
+  fotos: Array<string>,
 ): Promise<void> => {
   let modelPath;
-  tracklog.photoURL = null;
+  tracklog.photoCapaURL = null;
   if (definirPadrao) {
     const userData = await GetUserData(tracklog.userId);
     userData!.gliderSettings = gliderSettings;
+
     await DefineUserData(userData!.id, userData!);
   }
 
-  let myuuid = uuidv4();
-  modelPath = await uploadBlob(`glider_customized/${myuuid}.gltf`, model);
+  const myuuidModel = uuidv4();
+  modelPath = await uploadBlob(`glider_customized/${myuuidModel}.gltf`, model);
   tracklog.trackLogData!.gliderURL = modelPath!;
-
   const tracklog_tumb = await uploadBlob(`tracklog_thumb/${tracklog.id}`, corverPhoto);
-  tracklog.photoURL = tracklog_tumb!;
+  tracklog.photoCapaURL = tracklog_tumb!;
+  const fotosPromises = fotos.map(async (foto: string) => {
+    const myuuidFoto = uuidv4();
+    const urlFoto = await uploadBase64(`tracklog_fotos/${myuuidFoto}`, foto);
+    return urlFoto;
+  });
+  const photosURL = await Promise.all(fotosPromises);
+  tracklog.photosURL = photosURL!;
   const tracklogData = tracklog.trackLogData;
   tracklog.trackLogData = null;
   tracklog.userData = null;

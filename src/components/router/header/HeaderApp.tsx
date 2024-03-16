@@ -37,34 +37,28 @@ import classes from './HeaderApp.module.css';
 const areaLogada = [
   {
     icon: IconBook,
-    title: 'Cadastro',
-    description: 'Atualize seus dados cadastrais',
+    title: 'Editar Perfil',
+    description: 'Atualize os dados do seu perfil',
     link: '/profile'
   },
-  {
-    icon: IconCoin,
-    title: 'Pagamento',
-    description: 'Verifique seus pagamentos de anuidades e inscrições',
-    link: '/payment'
-  },
-  {
-    icon: BiTransfer,
-    title: 'Sincronização',
-    description: 'Configure seus dados de sincronização com outros parceiros',
-    link: '/sincronize'
-  },
-  {
-    icon: BiNews,
-    title: 'Noticias',
-    description: 'Cadastre novas notícias',
-    link: '/news'
-  },
-  {
-    icon: BiNews,
-    title: 'Preferências',
-    description: 'Personalize sua experiência no site',
-    link: '/preferences'
-  },
+  // {
+  //   icon: IconCoin,
+  //   title: 'Pagamento',
+  //   description: 'Verifique seus pagamentos de anuidades e inscrições',
+  //   link: '/payment'
+  // },
+  // {
+  //   icon: BiTransfer,
+  //   title: 'Sincronização',
+  //   description: 'Configure seus dados de sincronização com outros parceiros',
+  //   link: '/sincronize'
+  // },
+  // {
+  //   icon: BiNews,
+  //   title: 'Noticias',
+  //   description: 'Cadastre novas notícias',
+  //   link: '/news'
+  // }
 ];
 
 export function HeaderApp() {

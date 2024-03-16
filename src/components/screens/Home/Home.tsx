@@ -11,6 +11,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
 import { FooterApp } from '~/components/router/footer/FooterApp';
+import { useUserData } from '~/components/contexts/UserDataContext';
 
 function Card({ imagem }: LinksInicio) {
   return (
@@ -28,15 +29,12 @@ function Card({ imagem }: LinksInicio) {
 
 export default function Home() {
 
-  const { state } = useAuthState();
+  const { userData } = useUserData();
   const [linksInicio, setLinksInicio] = useState<Array<LinksInicio>>([]);
-  const [sectionsInicio, setSectionsInicio] = useState<Array<SectionsInicio>>([]);
-  const firestore = useFirestore();
-  const navigate = useNavigate();
   useEffect(() => {
     async function homeConfig() {
-      await ListLinksInicio().then((links)=>{
-         toggle();
+      await ListLinksInicio().then((links) => {
+        toggle();
         setLinksInicio(links);
       })
     }
@@ -55,7 +53,7 @@ export default function Home() {
 
   return (
     <>
-      <LoadingOverlay visible={visible}  overlayProps={{ radius: 'xl', blur: 5 }} loaderProps={{ children: <LoadingMain/> }} />
+      <LoadingOverlay visible={visible} overlayProps={{ radius: 'xl', blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
       <div className={classes.hero}>
         <Container className={classes.container} size="md">
           <Title className={classes.main_title}>
@@ -64,12 +62,13 @@ export default function Home() {
           <Text className={classes.description} size="xl" mt="xl">
             Faça parte da maior comunidade de esportes de aventura do Vale do Aço
           </Text>
-
-          <Button variant="gradient" size="xl" radius="xl" className={classes.control}
-            component={Link}
-            to='/login'>
-            Entrar
-          </Button>
+          {!userData && (
+            <Button variant="gradient" size="xl" radius="xl" className={classes.control}
+              component={Link}
+              to='/login'>
+              Entrar
+            </Button>
+          )}
         </Container>
       </div>
       <Carousel
@@ -138,8 +137,8 @@ export default function Home() {
               Participe da Mudança
             </Title>
             <Text fz="md" c="dimmed">
-              Seja parte ativa da AVLVA! Torne-se um associado, participe das assembleias e contribua para o fortalecimento do esporte, turismo e cultura em nossa região.            
-              </Text>
+              Seja parte ativa da AVLVA! Torne-se um associado, participe das assembleias e contribua para o fortalecimento do esporte, turismo e cultura em nossa região.
+            </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>

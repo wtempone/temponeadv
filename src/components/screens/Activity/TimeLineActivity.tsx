@@ -3,7 +3,7 @@ import { IconDots, IconEye, IconFileZip, IconHeart, IconPhoto, IconSettings, Ico
 import classes from './TimeLineActivity.module.css';
 import { Link } from 'react-router-dom';
 import { RiMovieLine } from "react-icons/ri";
-import { FaListUl } from "react-icons/fa";
+import { FaListUl, FaPlay } from "react-icons/fa";
 
 export default function TimeLineActivity(props: { DateActivity: any }) {
   const limitPilotos = 3;
@@ -59,7 +59,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
               size="xl"
               aria-label="Abrir cena do dia"
             >
-              <RiMovieLine style={{ width: rem(20) }} />
+              <FaPlay/>
             </UnstyledButton>
             <UnstyledButton
               component={Link}
@@ -68,7 +68,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
               size="xl"
               aria-label="Ir para lista de voos do dia"
             >
-              <FaListUl style={{ width: rem(20) }} />
+              <FaListUl/>
             </UnstyledButton>
           </Group>
         </Group>
