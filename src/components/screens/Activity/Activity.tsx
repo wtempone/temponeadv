@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Center, Container, Group, LoadingOverlay, Text } from '@mantine/core';
+import { ActionIcon, Button, Center, Container, Group, LoadingOverlay, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { IconExternalLink } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
@@ -90,7 +90,7 @@ export default function Activity() {
     <>
       <LoadingOverlay visible={visible} overlayProps={{ blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
       <Container>
-        <ActionIcon
+        <Button
           component="a"
           size="xl"
           className={classes.send_file}
@@ -98,8 +98,10 @@ export default function Activity() {
           style={{ position: 'fixed', bottom: 20, right: 20, borderRadius: 50 }}
           onClick={() => openModalSendFile()}
         >
+          Envie seu arquivo 
           <IconExternalLink />
-        </ActionIcon>
+        </Button>
+        <Title size='h2'>Voos do dia </Title>
         {items && (
           <InfiniteScroll
             dataLength={Object.values(items).length}

@@ -15,9 +15,36 @@
         var(--mantine-font-family);
     line-height: 1;
 }
+
 .menor {
     color: var(--mantine-color-orange-6);
 }
+
 .maior {
     color: var(--mantine-color-green-6);
+}
+
+.card {
+    height: calc(100vh / 3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-size: cover;
+    background-position: center;
+}
+
+.pilotos {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    align-items: center;
+    width: 100%;
+    margin: auto;
+    margin-top: 50px;
+    z-index: 1;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.500);
+
 }

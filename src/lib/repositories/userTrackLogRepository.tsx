@@ -1,8 +1,7 @@
-import { addDoc, collection, doc, getDoc, setDoc, query, getDocs, Timestamp, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, setDoc, query, getDocs, Timestamp, where, orderBy } from 'firebase/firestore';
 import { useFirestore } from '../firebase';
 import { Solution } from 'igc-xc-score';
 import { GetUserData, UserData, GliderSettings, DefineUserData } from './userDataRepository';
-import IGCParser from 'igc-parser';
 import dayjs from 'dayjs';
 import { DateCompact, fullNamedDateString, millisecondsToTime, tsFBToDate, getDayDates } from '~/components/shared/helpers';
 import { Cartesian3, Cartographic, EllipsoidGeodesic, JulianDate, SampledPositionProperty, VelocityVectorProperty } from 'cesium';
@@ -10,6 +9,8 @@ import { getDownloadURL, ref, uploadBytes, uploadBytesResumable, uploadString } 
 import { useStorage } from '~/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadBase64, uploadBlob } from '~/components/shared/UtilsStorage';
+import axios from 'axios';
+import IGCParser, { IGCFile, parse as igcParser, parse } from 'igc-parser';
 
 export interface Propertie {
   interval: string;
@@ -43,6 +44,8 @@ export interface TrackLog {
   description: string | null;
   place: string | null;
   photosURL: Array<string | undefined> | null;
+  fileURL: string | null;
+  gliderURL: string | null;
 
 }
 
@@ -51,7 +54,6 @@ export interface TrackLogData {
   userId: string;
   flightPoints: Array<FlightPoints>;
   velocityProperties: Array<Propertie>;
-  gliderURL: string | null;
   ascProperties: Array<Propertie>;
   distanceAccProperties: Array<Propertie>;
   distanceDecProperties: Array<Propertie>;
@@ -204,7 +206,6 @@ function eliminaVelocidadesIrrelevantes(velocityTakeoff: number, velocityLanding
 }
 
 const collectionTracklog = 'tracklog';
-const collectionTracklogData = 'tracklogData';
 
 export const CreateNewTrackLog = async (
   userId: string,
@@ -246,7 +247,6 @@ export const CreateNewTrackLog = async (
     ascProperties: ascProperties,
     distanceAccProperties: distanceAccProperties,
     distanceDecProperties: distanceDecProperties,
-    gliderURL: URL.createObjectURL(model)
   };
   const tracklog: TrackLog = {
     id: flight.fixes[0].timestamp.toString(),
@@ -269,6 +269,8 @@ export const CreateNewTrackLog = async (
     description: null,
     photosURL:null,
     place: null,
+    fileURL: null,
+    gliderURL: URL.createObjectURL(model)
   };
   return tracklog;
 }
@@ -276,13 +278,13 @@ export const CreateNewTrackLog = async (
 // adiciona tracklog e tracklogData (coordenadas) - registro completo do tracklog
 export const AddTrackLog = async (
   tracklog: TrackLog,
+  file: File,
   model: Blob,
   definirPadrao: boolean,
   corverPhoto: Blob,
   gliderSettings: GliderSettings,
   fotos: Array<string>,
 ): Promise<void> => {
-  let modelPath;
   tracklog.photoCapaURL = null;
   if (definirPadrao) {
     const userData = await GetUserData(tracklog.userId);
@@ -291,26 +293,25 @@ export const AddTrackLog = async (
     await DefineUserData(userData!.id, userData!);
   }
 
-  const myuuidModel = uuidv4();
-  modelPath = await uploadBlob(`glider_customized/${myuuidModel}.gltf`, model);
-  tracklog.trackLogData!.gliderURL = modelPath!;
-  const tracklog_tumb = await uploadBlob(`tracklog_thumb/${tracklog.id}`, corverPhoto);
+  const uuidTracklog = uuidv4();
+  const modelPath = await uploadBlob(`tracklogs/${uuidTracklog}/${uuidTracklog}.gltf`, model);
+  const filePath = await uploadBlob(`tracklogs/${uuidTracklog}/${uuidTracklog}.igc`, file as Blob);
+  tracklog!.gliderURL = modelPath!;
+  tracklog.fileURL = filePath!;
+  const tracklog_tumb = await uploadBlob(`tracklogs/${uuidTracklog}/thumb_${uuidTracklog}`, corverPhoto);
   tracklog.photoCapaURL = tracklog_tumb!;
   const fotosPromises = fotos.map(async (foto: string) => {
     const myuuidFoto = uuidv4();
-    const urlFoto = await uploadBase64(`tracklog_fotos/${myuuidFoto}`, foto);
+    const urlFoto = await uploadBase64(`tracklogs/${uuidTracklog}/fotos/${myuuidFoto}`, foto);
     return urlFoto;
   });
   const photosURL = await Promise.all(fotosPromises);
   tracklog.photosURL = photosURL!;
-  const tracklogData = tracklog.trackLogData;
   tracklog.trackLogData = null;
   tracklog.userData = null;
   const firestore = useFirestore();
   const docRef = doc(firestore, collectionTracklog, tracklog.id);
   const task = setDoc(docRef, { ...tracklog });
-  const docDataRef = doc(firestore, collectionTracklogData, tracklog.id);
-  const taskData = setDoc(docDataRef, { ...tracklogData });
   return task;
 };
 
@@ -326,10 +327,46 @@ export const GetTrackLog = async (id: string): Promise<TrackLog | undefined> => 
 // obtem  somente os dados do tracklogData - coordenadas
 export const GetTrackLogData = async (id: string): Promise<TrackLogData | undefined> => {
   const firestore = useFirestore();
-  const docRef = doc(firestore, collectionTracklogData, id);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    return docSnap.data() as TrackLogData;
+  const tracklog = await GetTrackLog(id);
+  if (tracklog) {
+    const getFile = await axios.get(tracklog.fileURL!);
+    if (getFile.status === 200) {
+      const fileResult = getFile.data;
+      const flight = igcParser(fileResult, { lenient: true });
+      let points = flight.fixes;
+      const calculados = calculaPropriedades(points);
+      const filtrados = eliminaVelocidadesIrrelevantes(7, 10, points, calculados.velocityProperties, calculados.ascProperties, calculados.distanceAccProperties, calculados.distanceDecProperties);
+      points = filtrados.flightPointsFiltrados;
+      const velocityProperties = filtrados.velocidadesFiltradas;
+      const ascProperties = filtrados.ascFiltradas;
+      const distanceAccProperties = filtrados.disctanceAccFiltradas;
+      const distanceDecProperties = filtrados.disctanceDecFiltradas;
+      const altitudes = points.map((fix) => fix.gpsAltitude!);
+      const maxGain = Math.max(...altitudes) - altitudes[0];
+      const startDate = new Date(points[0].timestamp);
+      const endDate = new Date(points[points.length - 1].timestamp);
+      const duration = endDate.getTime() - startDate.getTime();
+      const userData = await GetUserData(tracklog.userId);
+      const flightPoints: Array<FlightPoints> = points.map((fix) => {
+        return {
+          gpsAltitude: fix.gpsAltitude!,
+          latitude: fix.latitude,
+          longitude: fix.longitude,
+          pressureAltitude: fix.pressureAltitude!,
+          timestamp: fix.timestamp,
+        };
+      });
+      const tracklogData: TrackLogData = {
+        id: points[0].timestamp.toString(),
+        userId: tracklog.userId,
+        flightPoints: flightPoints,
+        velocityProperties: velocityProperties,
+        ascProperties: ascProperties,
+        distanceAccProperties: distanceAccProperties,
+        distanceDecProperties: distanceDecProperties,
+      };
+      return tracklogData;
+    }
   }
   return undefined;
 };
@@ -358,7 +395,7 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
   const firestore = useFirestore();
   const colectionRef = collection(firestore, collectionTracklog);
   try {
-    const qall = query(colectionRef);
+    const qall = query(colectionRef, orderBy('data', 'desc'));
     const snapall = await getDocs(qall);
 
     const registrosPromises = snapall.docs.map(async (doc: any) => {
@@ -399,6 +436,7 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
           id: data,
           dataString: fullNamedDateString(tsFBToDate(registro.data)!),
           pilotos: [],
+          photosURL:[],
           estatisticas: [
             { titulo: 'Distância', maior: 0, menor: 0 },
             { titulo: 'Ganho de Altitude', maior: 0, menor: 0 },
@@ -425,6 +463,8 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
         foto: registro.userData.photoURL,
       });
 
+      acc[data].photosURL = acc[data].photosURL.concat(registro.photosURL);
+
       return acc;
     }, []);
 
@@ -436,7 +476,7 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
       item.estatisticas[2].maior = millisecondsToTime(item.estatisticas[2].maior);
       item.estatisticas[2].menor = millisecondsToTime(item.estatisticas[2].menor);
     });
-
+    registrosPorData = registrosPorData.sort((a:any,b:any) =>  b.id - a.id);
     return { records: registrosPorData, hasMore: registrosPorData.length === pageSize - 1 };
   } catch (error) {
     console.error('Erro ao obter registros:', error);

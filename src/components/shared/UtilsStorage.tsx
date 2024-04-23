@@ -36,3 +36,4 @@ export function uploadBase64(path: string, base64: string): Promise<string | und
     });
   });
 }
+

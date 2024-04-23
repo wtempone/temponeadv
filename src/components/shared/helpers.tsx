@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Timestamp } from 'firebase/firestore';
 import 'dayjs/locale/pt-br';
-
+dayjs.locale('pt-br')
 function tsFBToDate(dateObject: any): Date | null {
   if (typeof dateObject == 'object') return (dateObject as Object as Timestamp).toDate();
   else return null;

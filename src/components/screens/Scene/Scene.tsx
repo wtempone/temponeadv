@@ -233,7 +233,7 @@ export default function Scene() {
           },
         },
         model: {
-          gltf: log.trackLogData?.gliderURL,
+          gltf: log.gliderURL,
           scale: 1,
         },
         orientation: {
@@ -241,7 +241,7 @@ export default function Scene() {
         },
         path: {
           leadTime: -0.10,
-          trailTime: 3,
+          //trailTime: 3,
           resolution: 0.1,
           material: {
             solidColor: {
@@ -253,7 +253,7 @@ export default function Scene() {
           },
           width: [
             {
-              number: 5.0,
+              number: 1.0,
             },
           ],
         },

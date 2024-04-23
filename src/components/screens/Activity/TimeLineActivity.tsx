@@ -1,9 +1,12 @@
-import { Card, Group, Text, Menu, ActionIcon, Image, SimpleGrid, rem, Avatar, Center, Anchor, UnstyledButton } from '@mantine/core';
+import { Card, Group, Text, Menu, ActionIcon, Image, SimpleGrid, rem, Avatar, Center, Anchor, UnstyledButton, Paper } from '@mantine/core';
 import { IconDots, IconEye, IconFileZip, IconHeart, IconPhoto, IconSettings, IconTrash } from '@tabler/icons-react';
 import classes from './TimeLineActivity.module.css';
 import { Link } from 'react-router-dom';
 import { RiMovieLine } from "react-icons/ri";
 import { FaListUl, FaPlay } from "react-icons/fa";
+import { Carousel } from '@mantine/carousel';
+import Autoplay from 'embla-carousel-autoplay';
+import { useRef } from 'react';
 
 export default function TimeLineActivity(props: { DateActivity: any }) {
   const limitPilotos = 3;
@@ -12,7 +15,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
     return (
       <Center>
         <Avatar.Group>
-          {props.DateActivity.pilotos.map((item: any,index:number) => (
+          {props.DateActivity.pilotos.map((item: any, index: number) => (
             <Avatar key={index} size='lg' src={item.foto} />
           )).slice(0, limitPilotos)}
           {props.DateActivity.pilotos.length > limitPilotos && <Avatar size='lg'>
@@ -46,8 +49,22 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
     </div>
   ));
 
+  const slides = props.DateActivity.photosURL.map((imagem: any, index: any) => (
+    <Carousel.Slide key={index} >
+      <Paper
+        shadow="md"
+        p="xl"
+        radius="md"
+        style={{ backgroundImage: `url(${imagem})` }}
+        className={classes.card}
+      >
+      </Paper>
+    </Carousel.Slide>
+  ));
+  const autoplay = useRef(Autoplay({ delay: 2000 }));
+
   return (
-    <Card withBorder shadow="sm" radius="md" mb='md'>
+    <Card withBorder radius="md" mb='md'>
       <Card.Section withBorder inheritPadding py="xs">
         <Group justify="space-between">
           <Text fw={500}>{props.DateActivity.dataString}</Text>
@@ -59,7 +76,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
               size="xl"
               aria-label="Abrir cena do dia"
             >
-              <FaPlay/>
+              <FaPlay />
             </UnstyledButton>
             <UnstyledButton
               component={Link}
@@ -68,27 +85,48 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
               size="xl"
               aria-label="Ir para lista de voos do dia"
             >
-              <FaListUl/>
+              <FaListUl />
             </UnstyledButton>
           </Group>
         </Group>
       </Card.Section>
       <Card.Section p="sm">
-        <Center>
-          <Text size='sm' >Pilotos</Text>
-        </Center>
-        <Center>
-          {pilotos()}
-        </Center>
+
+        <Paper p='sm' className={classes.pilotos}>
+          <Center>
+            <Text size='sm' >Pilotos </Text>
+          </Center>
+          <Center>
+            {pilotos()}
+          </Center>
+
+        </Paper>
+        {(props.DateActivity.photosURL.length > 0) && (
+
+          <Carousel
+            align="start"
+            withIndicators
+            key={props.DateActivity.id}
+            plugins={[autoplay.current]}
+            onMouseEnter={autoplay.current.stop}
+            onMouseLeave={autoplay.current.reset}
+
+          >
+            {slides}
+          </Carousel>
+        )}
+
+        {(props.DateActivity.photosURL.length == 0  ) && (
+          <Paper
+    
+            p="xl"
+            radius="md"
+            className={classes.card}
+          >
+          </Paper>
+        )}
       </Card.Section>
-      {/*   
-        <Card.Section inheritPadding mt="sm" pb="md">
-          <SimpleGrid cols={3}>
-            {images.map((image) => (
-              <Image src={image} key={image} radius="sm" />
-            ))}
-          </SimpleGrid>
-        </Card.Section> */}
+
       <Card.Section className={classes.footer}>{estatisticas}</Card.Section>
 
     </Card>

@@ -13,7 +13,7 @@ import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 
 export default function Customize(props:
   {
-    gliderSettings: GliderSettings,
+    gliderSettings: GliderSettings | null | undefined,
     close: () => void,
     confirm: (gliderSettings: GliderSettings, model?: Blob, definirPadrao?: boolean) => Promise<void>,
     editPerfil: boolean,
@@ -86,33 +86,33 @@ export default function Customize(props:
   }
   const form = useForm<FormData>({
     initialValues: {
-      corPrimaria: props.gliderSettings.corPrimaria || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corLinhas: props.gliderSettings.corLinhas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corSelete: props.gliderSettings.corSelete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corRoupa: props.gliderSettings.corRoupa || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corCapacete: props.gliderSettings.corCapacete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corViseira: props.gliderSettings.corViseira || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corLuvas: props.gliderSettings.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corDetalhe1: props.gliderSettings.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corDetalhe2: props.gliderSettings.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corDetalhe3: props.gliderSettings.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      corRastro: props.gliderSettings.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)],
-      definirPadrao:  !props.gliderSettings,
+      corPrimaria: props.gliderSettings?.corPrimaria || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corLinhas: props.gliderSettings?.corLinhas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corSelete: props.gliderSettings?.corSelete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corRoupa: props.gliderSettings?.corRoupa || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corCapacete: props.gliderSettings?.corCapacete || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corViseira: props.gliderSettings?.corViseira || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corLuvas: props.gliderSettings?.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe1: props.gliderSettings?.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe2: props.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corDetalhe3: props.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      corRastro: props.gliderSettings?.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)],
+      definirPadrao: !props.gliderSettings,
     }
   });
 
   useEffect(() => {
-    form.setFieldValue('corPrimaria', props.gliderSettings.corPrimaria || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corLinhas', props.gliderSettings.corLinhas || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corSelete', props.gliderSettings.corSelete || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corRoupa', props.gliderSettings.corRoupa || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corCapacete', props.gliderSettings.corCapacete || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corViseira', props.gliderSettings.corViseira || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corLuvas', props.gliderSettings.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corDetalhe1', props.gliderSettings.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corDetalhe2', props.gliderSettings.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corDetalhe3', props.gliderSettings.corDetalhe3 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
-    form.setFieldValue('corRastro', props.gliderSettings.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corPrimaria', props.gliderSettings?.corPrimaria || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corLinhas', props.gliderSettings?.corLinhas || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corSelete', props.gliderSettings?.corSelete || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corRoupa', props.gliderSettings?.corRoupa || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corCapacete', props.gliderSettings?.corCapacete || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corViseira', props.gliderSettings?.corViseira || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corLuvas', props.gliderSettings?.corLuvas || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corDetalhe1', props.gliderSettings?.corDetalhe1 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corDetalhe2', props.gliderSettings?.corDetalhe2 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corDetalhe3', props.gliderSettings?.corDetalhe3 || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
+    form.setFieldValue('corRastro', props.gliderSettings?.corRastro || colorsArray[Math.floor(Math.random() * colorsArray.length)]);
   }, [])
   function MeshComponent(props: {
     refMesh: React.MutableRefObject<Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>>,
@@ -164,12 +164,12 @@ export default function Customize(props:
         const jsonString = JSON.stringify(gltfJson);
         const model = new Blob([jsonString], { type: "application/json" });
         props.confirm(gliderSettings, model, form.values.definirPadrao);
-  
+
       }, function (erro) {
         console.log('error', erro)
       });
     }
-   
+
   }
   function updateColors() {
     if (!mesh.current?.children || mesh.current?.children.length == 0) return;
@@ -211,7 +211,7 @@ export default function Customize(props:
       }
     });
   }
-  const [gliderModel, setGliderModel] = useState(props.gliderSettings!.gliderModel || 0);
+  const [gliderModel, setGliderModel] = useState(props.gliderSettings?.gliderModel || 0);
 
   function changeNextModel() {
     if (gliderModel === models.length - 1) {

@@ -87,7 +87,7 @@ export function HeaderApp() {
       component={Link} variant='link' to={item.link}
       onClick={closeDrawer}>
       <Group align="flex-start" p="xs">
-        <Group wrap="nowrap"  justify="initial">
+        <Group wrap="nowrap" justify="initial">
           <ThemeIcon size={34} variant="default" radius="md">
             <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.blue[6]} />
           </ThemeIcon>
@@ -152,13 +152,13 @@ export function HeaderApp() {
           <img src={companyLogo} id='companyLogo' style={{ width: rem(60), height: rem(60) }} alt="company logo" />
           <Group h="100%" visibleFrom="sm ">
             <Text className={classes.link} component={Link} variant='link' to='/'>
-              Institucional
+              Quem Somos
             </Text>
             {/* <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
               Seja um piloto
             </Text> */}
             <Text className={classes.link} component={Link} variant='link' to='/activity'>
-              Atividade
+              Voos do dia
             </Text>
             {/* <Text className={classes.link} component={Link} variant='link' to='/news'>
               Notícias
@@ -252,7 +252,7 @@ export function HeaderApp() {
           <Divider my="sm" />
 
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/'>
-            Institucional
+            Quem Somos
           </Text>
           {/* <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
             Seja um piloto
@@ -261,7 +261,7 @@ export function HeaderApp() {
             Notícias
           </Text> */}
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/activity'>
-            Atividade
+            Voos do dia
           </Text>
           {isAuthenticated && (
             <>

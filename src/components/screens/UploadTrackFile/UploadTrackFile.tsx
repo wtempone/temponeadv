@@ -15,7 +15,7 @@ import { DateTimePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { IconCloudUpload, IconFile } from '@tabler/icons-react';
-import IGCParser, { IGCFile, parse as igcParser } from 'igc-parser';
+import IGCParser, { IGCFile, parse as igcParser, parse } from 'igc-parser';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { LoadingMain } from '~/components/shared/Loading';
@@ -63,6 +63,11 @@ export default function UploadTrackFile(props: PaperProps) {
     });
   }
 
+  async function changeFile(file : File |null) {
+    setFile(file);
+   const icgFile = await paseFile(file!);
+   setDataInicio(new Date(icgFile!.fixes[0].timestamp));  
+  }
   function modalError(title: string, message: string) {
     modals.open({
       title: title,
@@ -106,17 +111,6 @@ export default function UploadTrackFile(props: PaperProps) {
     }
 
     if (dataFligth) {
-
-      if (datainicio) {
-        const data = new Date(dataFligth.fixes[0].timestamp);
-        const resultArray: number[] = [];
-        let incio = datainicio.getTime();
-        const primeiraData = dataFligth.fixes[0].timestamp;
-        const fixes = dataFligth.fixes.map((fix) => ({ ...fix, timestamp: incio + (fix.timestamp - primeiraData) }));
-        dataFligth.fixes = fixes;
-      }
-
-
       const valid = await checkValidFile(dataFligth);
       if (!valid) {
         return;
@@ -130,6 +124,7 @@ export default function UploadTrackFile(props: PaperProps) {
     toggle();
     AddTrackLog(
       tracklog!,
+      file!,
       model!,
       definirPadrao,
       imagemCapa!,
@@ -279,7 +274,7 @@ export default function UploadTrackFile(props: PaperProps) {
             </Paper>
           </Center>
           <Center>
-            <FileButton onChange={setFile} accept='*/*'>
+            <FileButton onChange={changeFile} accept='*/*'>
               {(props) => (
                 <Button variant='default' size="md" radius="xl" mt="xs" {...props}>
                   Selecionar arquivo
@@ -288,12 +283,7 @@ export default function UploadTrackFile(props: PaperProps) {
             </FileButton>
           </Center>
           <Center>
-            <DateTimePicker
-              value={datainicio}
-              onChange={setDataInicio}
-              label="Data de início"
-              placeholder="Selecione a data de início"
-            />
+            <Text size="sm" c="dimmed"> {datainicio?.toString()} </Text>
           </Center>
         </Stack>
         <Center mt="xl">

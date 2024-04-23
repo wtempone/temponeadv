@@ -101,8 +101,9 @@ export default function NewScene(props: {
 
       const dataSourcePromise = await CzmlDataSource.load(currentCzml);
       await viewer!.dataSources.add(dataSourcePromise);
-      const trackEntity = viewer!.dataSources.get(0).entities.getById(props.flight!.fixes[0].timestamp.toString());
 
+      const trackEntity = viewer!.dataSources.get(0).entities.getById(props.flight!.fixes[0].timestamp.toString());
+      await viewer!.render();
       if (trackEntity) {
         viewer!.zoomTo(trackEntity);
         viewer!.trackedEntity = trackEntity;
@@ -194,7 +195,7 @@ export default function NewScene(props: {
       name: tracklog.userData?.nome,
       availability: availability,
       model: {
-        gltf: tracklog.trackLogData?.gliderURL,
+        gltf: tracklog.gliderURL,
         scale: 2.0,
         resolutionScale: 0.1,
       },

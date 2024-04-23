@@ -5,7 +5,7 @@ import AccessDenied from '../screens/AcessoNegado';
 import Beapilot from '../screens/Beapilot/Beapilot';
 import UnderConstruction from '../screens/EmConstrucao';
 import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
-import { Preferences, Profile } from '../screens/Profile/Profile';
+import { Profile } from '../screens/Profile/Profile';
 import Customize from '../shared/Customize/Customize';
 import UploadTrackFile from '../screens/UploadTrackFile/UploadTrackFile';
 import { HeaderApp } from './header/HeaderApp';

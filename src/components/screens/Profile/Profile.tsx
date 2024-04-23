@@ -36,7 +36,7 @@ export function Profile() {
         title: 'Selecionar foto',
         children: (
           <Customize
-            gliderSettings={userData!.gliderSettings!}
+            gliderSettings={userData?.gliderSettings}
             close={closeModalSettings}
             confirm={confirmModalSettings}
             editPerfil={true}
@@ -91,12 +91,12 @@ export function Profile() {
       </Text>
       <Group p='lg'>
         <Avatar
-          src={userData!.photoURL}
+          src={userData?.photoURL}
           size='lg'
           radius='xl'
         />
         <Text fz="lg" fw={700} inline={true}>
-          {userData!.nome}
+          {userData?.nome}
         </Text>
       </Group>
 
@@ -107,9 +107,9 @@ export function Profile() {
             Altere sua foto
           </Text>
         </div>
-        <FileButton onChange={changeFoto} accept='image/*' >
+        <FileButton onChange={changeFoto} accept='image/*'>
           {(props) => (
-            <Button size="md" radius="xl" mt="xs" {...props}>
+            <Button size="md" radius="xl" mt="xs" disabled={!userData} {...props}>
               Selecionar
             </Button>
           )}
@@ -118,7 +118,12 @@ export function Profile() {
 
       <Group justify="space-between" className={classes.item} wrap="nowrap" gap="xl">
         <div>
-          <Text>Alterar cadastro</Text>
+          <Text>{userData ? "Alterar cadastro" : "Complete seu cadastro"}</Text>
+          {userData && (
+            <Text size="xs" c="dimmed">
+            Complete seu cadastro para ter acesso a todos os recursos do site
+          </Text>
+          )}
           <Text size="xs" c="dimmed">
             Altere seus dados cadastrais
           </Text>
@@ -129,7 +134,7 @@ export function Profile() {
           radius="xl"
           component={Link}
           to='/profileForm'>
-          Alterar
+            {userData ? "Alterar" : "Preencher"}
         </Button>
       </Group>
 
@@ -141,8 +146,8 @@ export function Profile() {
           </Text>
         </div>
 
-        <Button size="md" radius="xl" mt="xs" onClick={changeEquipamento}>
-          Personalizar
+        <Button size="md" radius="xl" mt="xs" onClick={changeEquipamento} disabled={!userData}>
+          Mudar
         </Button>
 
       </Group>
