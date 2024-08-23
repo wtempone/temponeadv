@@ -68,6 +68,7 @@ export default function Customize(props:
     '/models/glide_model_sky.glb',
     '/models/glide_model_ozo.glb',
     '/models/glide_model_gin.glb',
+    '/models/glide_model_teste.glb',
   ]
 
   interface FormData {

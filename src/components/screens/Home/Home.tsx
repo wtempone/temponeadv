@@ -11,7 +11,6 @@ import Autoplay from 'embla-carousel-autoplay';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
 import { FooterApp } from '~/components/router/footer/FooterApp';
-import { useUserData } from '~/components/contexts/UserDataContext';
 
 function Card({ imagem }: LinksInicio) {
   return (
@@ -29,12 +28,15 @@ function Card({ imagem }: LinksInicio) {
 
 export default function Home() {
 
-  const { userData } = useUserData();
+  const { state } = useAuthState();
   const [linksInicio, setLinksInicio] = useState<Array<LinksInicio>>([]);
+  const [sectionsInicio, setSectionsInicio] = useState<Array<SectionsInicio>>([]);
+  const firestore = useFirestore();
+  const navigate = useNavigate();
   useEffect(() => {
     async function homeConfig() {
-      await ListLinksInicio().then((links) => {
-        toggle();
+      await ListLinksInicio().then((links)=>{
+         toggle();
         setLinksInicio(links);
       })
     }
@@ -53,20 +55,21 @@ export default function Home() {
 
   return (
     <>
-      <LoadingOverlay visible={visible} overlayProps={{ radius: 'xl', blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
+      <LoadingOverlay visible={visible}  overlayProps={{ radius: 'xl', blur: 5 }} loaderProps={{ children: <LoadingMain/> }} />
       <div className={classes.hero}>
         <Container className={classes.container} size="md">
           <Title className={classes.main_title}>
-            Bem-vindo à AVLVA - Associação de Voo Livre Amador </Title>
+            Seja Bem-Vindo à AVLVA
+            Transformando Vidas, Celebrando Culturas!</Title>
           <Text className={classes.description} size="xl" mt="xl">
-            Explore o céu como nunca antes com a AVLVA! Se você é um entusiasta do voo livre amador ou apenas curioso para experimentar a sensação de liberdade que só o voo pode proporcionar, você está no lugar certo.          </Text>
-          {!userData && (
-            <Button variant="gradient" size="xl" radius="xl" className={classes.control}
-              component={Link}
-              to='/login'>
-              Entrar
-            </Button>
-          )}
+            Faça parte da maior comunidade de esportes de aventura do Vale do Aço
+          </Text>
+
+          <Button variant="gradient" size="xl" radius="xl" className={classes.control}
+            component={Link}
+            to='/login'>
+            Entrar
+          </Button>
         </Container>
       </div>
       <Carousel
@@ -86,32 +89,47 @@ export default function Home() {
               Quem Somos
             </Title>
             <Text fz="md" c="dimmed">
-              Na AVLVA, temos uma paixão compartilhada pelo voo livre e estamos comprometidos em oferecer uma comunidade acolhedora e recursos abrangentes para todos os interessados nesse emocionante esporte.            </Text>
+              A AVLVA, Associação de Voo Livre do Vale do Aço, é uma entidade comprometida com o desenvolvimento integral da região. Fundada em 2007, tem como propósito incentivar, promover e refletir sobre todas as modalidades esportivas da região, fortalecer o turismo em suas diversas vertentes e valorizar, divulgar e fortalecer a rica cultura do Vale do Aço.
+            </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>
           <div className={classes.section_body}>
             <Title size='h2' mb="lg">
-              Por que escolher a AVLVA?
-
+              Nossos Principais Objetivos
             </Title>
             <List fz="md" c="dimmed">
               <List.Item>
-                Comunidade Apaixonada: Junte-se a uma comunidade de voo livre entusiasta e compartilhe suas experiências com outros amantes do voo.
+                Organização de eventos esportivos, turísticos, culturais e projetos de inclusão social.
               </List.Item>
               <List.Item>
-                Segurança em Primeiro Lugar: Priorizamos a segurança em todas as nossas atividades e fornecemos recursos e orientações para garantir que todos os nossos membros voem com responsabilidade.
+                Realização de pesquisas sobre esportes e cultura.
               </List.Item>
               <List.Item>
-                Eventos e Encontros: Participe de eventos emocionantes e encontros sociais para conhecer outros pilotos e compartilhar suas aventuras no céu.
+                Experimentação e aprofundamento das questões relacionadas à prática de esportes radicais, preservação do meio ambiente e patrimônio cultural da região.
+              </List.Item>
+              <List.Item>
+                Realização de oficinas, cursos livres e outras atividades relacionadas a esportes, cultura e turismo.
               </List.Item>
               <List.Item>
                 Elaboração e realização de projetos para profissionais e amadores nas áreas de esportes, cultura e turismo.
               </List.Item>
               <List.Item>
-                Você pode fazer upload de suas fotos e arquivos de tracklog de voo, permitindo que você compartilhe suas rotas e experiências com outros membros da comunidade. Interaja, troque informações e inspire-se com outros pilotos amadores.
+                Promoção da integração artística social dos diferentes públicos e necessidades regionais.
+              </List.Item>
+              <List.Item>
+                Realização de projetos audiovisuais e cinema, pesquisa histórica, cultural, étnica e discussão de gêneros.
               </List.Item>
             </List>
+          </div>
+        </div>
+        <div className={classes.section_wrapper}>
+          <div className={classes.section_body}>
+            <Title size='h2' mb="lg">
+              Nossa Estrutura
+            </Title>
+            <Text fz="md" c="dimmed">
+              A AVLVA é composta pela Assembleia Geral, Diretoria, Conselho Fiscal e Associados. A Assembleia Geral, órgão soberano, se reúne regularmente para discutir assuntos de interesse geral, incluindo eleições da Diretoria, aprovação de contas e relatórios de atividades.            </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>
@@ -120,14 +138,14 @@ export default function Home() {
               Participe da Mudança
             </Title>
             <Text fz="md" c="dimmed">
-              Seja parte ativa da AVLVA! Torne-se um associado e contribua para o fortalecimento do esporte.
-            </Text>
+              Seja parte ativa da AVLVA! Torne-se um associado, participe das assembleias e contribua para o fortalecimento do esporte, turismo e cultura em nossa região.            
+              </Text>
           </div>
         </div>
         <div className={classes.section_wrapper}>
           <div className={classes.section_body}>
             <Title size='h2' mb="lg">
-              Junte-se a nós! AVLVA
+              Junte-se a nós! AVLVA - Transformando Vidas Através do Esporte, Turismo e Cultura
             </Title>
           </div>
         </div>

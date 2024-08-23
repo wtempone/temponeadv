@@ -13,6 +13,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
 
 export default function ActivityDate() {
+  const navigate = useNavigate();
   const params = useParams();
   if (!params || !params.id) {
     throw new Error('Data não informada');
@@ -22,7 +23,7 @@ export default function ActivityDate() {
   const [count, setCount] = useState<number>();
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [initiliazed, setInitiliazed] = useState<boolean>(false);
-  const [visible, { toggle }] = useDisclosure(true);
+  const [visible, { close, open }] = useDisclosure(true);
 
   useEffect(() => {
     if (!initiliazed) {
@@ -31,11 +32,13 @@ export default function ActivityDate() {
     }
   }, []);
 
+
   function refresh() {
+    open()
     ListTrackLogUserData(dataparam!).then((resp) => {
       setItems(resp!);
       setHasMore(false);
-      toggle();
+      close();
     });
   }
 
@@ -45,19 +48,21 @@ export default function ActivityDate() {
       <Container>
         <Group justify="space-between">
           <Title size="h5" mb="md">
-            {fullNamedDateString(dataparam!)}
+            {items && items!.length > 0 ? fullNamedDateString(dataparam!) : 'Nenhum voo encontrado'}
           </Title>
-
           <Group>
-            <UnstyledButton 
-            variant="default" size="xl" 
-            aria-label="Abrir cena do dia"
-            component={Link}
-            to={`/scene/ /${params.id!}`}
 
-            >
-              <FaPlay/>
-            </UnstyledButton>
+            {items && items!.length > 0 && (
+              <UnstyledButton
+                variant="default" size="xl"
+                aria-label="Abrir cena do dia"
+                component={Link}
+                to={`/scene/ /${params.id!}`}
+
+              >
+                <FaPlay />
+              </UnstyledButton>
+            )}
             <UnstyledButton
               component={Link}
               to="/activity"
@@ -65,13 +70,13 @@ export default function ActivityDate() {
               size="xl"
               aria-label="Ir para lista de voos do dia"
             >
-              <FaArrowLeft  />
+              <FaArrowLeft />
             </UnstyledButton>
           </Group>
         </Group>
         <Group justify="center">
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
-            {items && items.map((item, index) => <ItemtActivity key={index} Tracklog={item} />)}
+            {items && items.map((item, index) => <ItemtActivity key={index} Tracklog={item} parentRefresh={refresh} />)}
           </SimpleGrid>
         </Group>
       </Container>

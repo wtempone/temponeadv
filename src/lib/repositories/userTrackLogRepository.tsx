@@ -1,16 +1,22 @@
-import { addDoc, collection, doc, getDoc, setDoc, query, getDocs, Timestamp, where, orderBy } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, setDoc, query, getDocs, Timestamp, where, orderBy, deleteDoc } from 'firebase/firestore';
 import { useFirestore } from '../firebase';
 import { Solution } from 'igc-xc-score';
 import { GetUserData, UserData, GliderSettings, DefineUserData } from './userDataRepository';
 import dayjs from 'dayjs';
-import { DateCompact, fullNamedDateString, millisecondsToTime, tsFBToDate, getDayDates } from '~/components/shared/helpers';
+import { DateCompact, fullNamedDateString, millisecondsToTime, tsFBToDate, getDayDates, tsToTime } from '~/components/shared/helpers';
 import { Cartesian3, Cartographic, EllipsoidGeodesic, JulianDate, SampledPositionProperty, VelocityVectorProperty } from 'cesium';
 import { getDownloadURL, ref, uploadBytes, uploadBytesResumable, uploadString } from 'firebase/storage';
 import { useStorage } from '~/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
-import { uploadBase64, uploadBlob } from '~/components/shared/UtilsStorage';
+import { deleteTracklogFolder, uploadBase64, uploadBlob } from '~/components/shared/UtilsStorage';
 import axios from 'axios';
 import IGCParser, { IGCFile, parse as igcParser, parse } from 'igc-parser';
+import { IconCoin, IconDiscount2, IconReceipt2, IconUserPlus } from '@tabler/icons-react';
+import { PiAirplaneInFlightBold } from 'react-icons/pi';
+import { RiPinDistanceFill } from 'react-icons/ri';
+import { GiPathDistance } from 'react-icons/gi';
+import { FaRegClock } from 'react-icons/fa';
+import { IconType } from 'react-icons';
 
 export interface Propertie {
   interval: string;
@@ -35,6 +41,7 @@ export interface TrackLog {
   takeoff: Date | null;
   loggerManufacturer: string | null;
   distance: number | null;
+  accumulatedDistance: number | null;
   score: number | null;
   duration: number | null;
   maxGain: number | null;
@@ -46,7 +53,21 @@ export interface TrackLog {
   photosURL: Array<string | undefined> | null;
   fileURL: string | null;
   gliderURL: string | null;
+  comments: Array<TracklogComents | undefined> | null;
+  likes: Array<TracklogLike | undefined> | null;
+}
 
+export interface TracklogComents {
+  id: string;
+  userId: string;
+  data: Date;
+  message: string;
+}
+
+export interface TracklogLike {
+  id: string;
+  userId: string;
+  data: Date;
 }
 
 export interface TrackLogData {
@@ -248,6 +269,7 @@ export const CreateNewTrackLog = async (
     distanceAccProperties: distanceAccProperties,
     distanceDecProperties: distanceDecProperties,
   };
+
   const tracklog: TrackLog = {
     id: flight.fixes[0].timestamp.toString(),
     userId: userId,
@@ -259,7 +281,8 @@ export const CreateNewTrackLog = async (
     takeoff: new Date(points[0].timestamp),
     landing: new Date(points[points.length - 1].timestamp),
     loggerManufacturer: flight.loggerManufacturer,
-    distance: 0,
+    distance: distanceDecProperties.length > 0 ? distanceDecProperties[distanceDecProperties.length - 1].number : 0,
+    accumulatedDistance: distanceAccProperties.length > 0 ? distanceAccProperties[distanceAccProperties.length - 1].number : 0,
     score: 0,
     duration: duration,
     maxGain: maxGain,
@@ -267,10 +290,12 @@ export const CreateNewTrackLog = async (
     trackLogData: tracklogData,
     userData: userData!,
     description: null,
-    photosURL:null,
+    photosURL: null,
     place: null,
     fileURL: null,
-    gliderURL: URL.createObjectURL(model)
+    gliderURL: URL.createObjectURL(model),
+    comments: null,
+    likes: null,
   };
   return tracklog;
 }
@@ -283,37 +308,52 @@ export const AddTrackLog = async (
   definirPadrao: boolean,
   corverPhoto: Blob,
   gliderSettings: GliderSettings,
-  fotos: Array<string>,
+  fotos: Array<string>
 ): Promise<void> => {
-  tracklog.photoCapaURL = null;
+
   if (definirPadrao) {
     const userData = await GetUserData(tracklog.userId);
     userData!.gliderSettings = gliderSettings;
-
     await DefineUserData(userData!.id, userData!);
   }
 
-  const uuidTracklog = uuidv4();
-  const modelPath = await uploadBlob(`tracklogs/${uuidTracklog}/${uuidTracklog}.gltf`, model);
-  const filePath = await uploadBlob(`tracklogs/${uuidTracklog}/${uuidTracklog}.igc`, file as Blob);
+  const tracklogId = tracklog.id;
+  const fileName = file.name.split('.').slice(0, -1).join('');
+
+  const modelPath = await uploadBlob(`tracklogs/${tracklogId}/${fileName}.gltf`, model);
+  const filePath = await uploadBlob(`tracklogs/${tracklogId}/${fileName}.igc`, file as Blob);
+  const tracklog_tumb = await uploadBlob(`tracklogs/${tracklogId}/thumb_${tracklogId}`, corverPhoto);
   tracklog!.gliderURL = modelPath!;
   tracklog.fileURL = filePath!;
-  const tracklog_tumb = await uploadBlob(`tracklogs/${uuidTracklog}/thumb_${uuidTracklog}`, corverPhoto);
   tracklog.photoCapaURL = tracklog_tumb!;
+
   const fotosPromises = fotos.map(async (foto: string) => {
     const myuuidFoto = uuidv4();
-    const urlFoto = await uploadBase64(`tracklogs/${uuidTracklog}/fotos/${myuuidFoto}`, foto);
+    const urlFoto = await uploadBase64(`tracklogs/${tracklogId}/fotos/${myuuidFoto}`, foto);
     return urlFoto;
   });
+
   const photosURL = await Promise.all(fotosPromises);
   tracklog.photosURL = photosURL!;
   tracklog.trackLogData = null;
   tracklog.userData = null;
+
   const firestore = useFirestore();
   const docRef = doc(firestore, collectionTracklog, tracklog.id);
   const task = setDoc(docRef, { ...tracklog });
+
   return task;
 };
+
+export const DeleteTracklog = async (id: string): Promise<void> => {
+  const deleteTracklog = await deleteTracklogFolder(id);
+  if (deleteTracklog) {
+    const firestore = useFirestore();
+    const docRef = doc(firestore, collectionTracklog, id);
+    await deleteDoc(docRef);
+  }
+};
+
 
 export const GetTrackLog = async (id: string): Promise<TrackLog | undefined> => {
   const firestore = useFirestore();
@@ -415,17 +455,17 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
         acc[data] = {
           date: tsFBToDate(registro.data),
           estatisticas: [
-            { titulo: 'Distância', maximo: 0 },
-            { titulo: 'Ganho de Altitude', maximo: 0 },
+            { titulo: 'Distância da Decolagem', maximo: 0 },
+            { titulo: 'Ganho  Max. de Altitude', maximo: 0 },
             { titulo: 'Duração', maximo: 0 },
-            { titulo: 'Pontos', maximo: 0 },
+            { titulo: 'Distância Acumulada', maximo: 0 },
           ],
         };
       }
       acc[data].estatisticas[0].maximo = Math.max(acc[data].estatisticas[0].maximo, registro.distance);
       acc[data].estatisticas[1].maximo = Math.max(acc[data].estatisticas[1].maximo, registro.maxGain);
       acc[data].estatisticas[2].maximo = Math.max(acc[data].estatisticas[2].maximo, registro.duration);
-      acc[data].estatisticas[3].maximo = Math.max(acc[data].estatisticas[3].maximo, registro.score);
+      acc[data].estatisticas[3].maximo = Math.max(acc[data].estatisticas[3].maximo, registro.accumulatedDistance);
       return acc;
     }, []);
 
@@ -436,12 +476,12 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
           id: data,
           dataString: fullNamedDateString(tsFBToDate(registro.data)!),
           pilotos: [],
-          photosURL:[],
+          photosURL: [],
           estatisticas: [
-            { titulo: 'Distância', maior: 0, menor: 0 },
-            { titulo: 'Ganho de Altitude', maior: 0, menor: 0 },
+            { titulo: 'Distância da Decolagem', maior: 0, menor: 0 },
+            { titulo: 'Ganho Max. de Altitude', maior: 0, menor: 0 },
             { titulo: 'Duração', maior: 0, menor: 0 },
-            { titulo: 'Pontos', maior: 0, menor: 0 },
+            { titulo: 'Distância Acumulada', maior: 0, menor: 0 },
           ],
         };
       }
@@ -455,7 +495,7 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
       acc[data].estatisticas[2].menor = Math.min(maxEstatisticas[data].estatisticas[2].maximo, registro.duration);
 
       acc[data].estatisticas[3].maior = maxEstatisticas[data].estatisticas[3].maximo;
-      acc[data].estatisticas[3].menor = Math.min(maxEstatisticas[data].estatisticas[3].maximo, registro.score);
+      acc[data].estatisticas[3].menor = Math.min(maxEstatisticas[data].estatisticas[3].maximo, registro.accumulatedDistance);
 
       acc[data].pilotos.push({
         id: registro.userId,
@@ -469,14 +509,16 @@ export const ListAllTrackLogDataUser = async (pageSize: number): Promise<returnG
     }, []);
 
     registrosPorData.forEach((item: any) => {
-      item.estatisticas[0].maior = `${item.estatisticas[0].maior} km`;
-      item.estatisticas[0].menor = `${item.estatisticas[0].menor} km`;
-      item.estatisticas[1].maior = `${item.estatisticas[1].maior} m`;
-      item.estatisticas[1].menor = `${item.estatisticas[1].menor} m`;
+      item.estatisticas[0].maior = `${item.estatisticas[0].maior.toLocaleString('pt-br')} m`;
+      item.estatisticas[0].menor = `${item.estatisticas[0].menor.toLocaleString('pt-br')} m`;
+      item.estatisticas[1].maior = `${item.estatisticas[1].maior.toLocaleString('pt-br')} m`;
+      item.estatisticas[1].menor = `${item.estatisticas[1].menor.toLocaleString('pt-br')} m`;
       item.estatisticas[2].maior = millisecondsToTime(item.estatisticas[2].maior);
       item.estatisticas[2].menor = millisecondsToTime(item.estatisticas[2].menor);
+      item.estatisticas[3].maior = `${item.estatisticas[3].maior.toLocaleString('pt-br')} m`;
+      item.estatisticas[3].menor = `${item.estatisticas[3].menor.toLocaleString('pt-br')} m`;
     });
-    registrosPorData = registrosPorData.sort((a:any,b:any) =>  b.id - a.id);
+    registrosPorData = registrosPorData.sort((a: any, b: any) => b.id - a.id);
     return { records: registrosPorData, hasMore: registrosPorData.length === pageSize - 1 };
   } catch (error) {
     console.error('Erro ao obter registros:', error);
@@ -487,29 +529,23 @@ export const ListTrackLogUserData = async (data: Date) => {
   const firestore = useFirestore();
   const { startDate, endDate } = getDayDates(data);
   const colectionRef = collection(firestore, collectionTracklog);
-  try {
-    const qall = query(colectionRef, where('data', '>=', startDate), where('data', '<=', endDate));
-    const snapall = await getDocs(qall);
 
-    const registrosPromises = snapall.docs.map(async (doc: any) => {
+  const qall = query(colectionRef, where('data', '>=', startDate), where('data', '<=', endDate));
+  const snapall = await getDocs(qall);
 
-      const tracklogData = doc.data() as TrackLog;
+  const registrosPromises = snapall.docs.map(async (doc: any) => {
 
-      const userData = await GetUserData(tracklogData.userId);
-      const registroComUserData = {
-        ...tracklogData,
-        userData,
-      };
-      return registroComUserData;
-    });
-    const registrosComUserData = await Promise.all(registrosPromises);
-    if (registrosComUserData.length > 0) return registrosComUserData;
-    else
-      throw new Error(`Ocorreu um erro ao ober os registros de tracklog para a 
-        data: parametro ${data} - data de inicio: ${startDate} - data de fim: ${endDate}`);
-  } catch (error) {
-    throw new Error(`Nenhum registro foi obtido d tracklos para data já filtrada: parametro ${data} - data de inicio: ${startDate} - data de fim: ${endDate}`);
-  }
+    const tracklogData = doc.data() as TrackLog;
+
+    const userData = await GetUserData(tracklogData.userId);
+    const registroComUserData = {
+      ...tracklogData,
+      userData,
+    };
+    return registroComUserData;
+  });
+  const registrosComUserData = await Promise.all(registrosPromises);
+  return registrosComUserData;
 };
 // obtem todos os dados do tracklog, dados do usuario e tracklogData com coordenadas para abrir mapa do dia
 export const ListCompleteTrackLog = async (data: Date): Promise<Array<any> | undefined> => {
@@ -541,4 +577,75 @@ export const ListCompleteTrackLog = async (data: Date): Promise<Array<any> | und
   }
 };
 
+export const ListTrackLogsByUser = async (id: string) => {
+  const firestore = useFirestore();
+  const colectionRef = collection(firestore, collectionTracklog);
+  const qall = query(colectionRef, where('userId', '==', id));
+  const snapall = await getDocs(qall);
+
+
+  const fetchedData: Array<TrackLog> = [];
+  snapall.forEach((doc) => {
+    fetchedData.push({ id: doc.id, ...doc.data() } as TrackLog);
+  })
+  return fetchedData;
+
+};
+
+function calcularMedia(trackLogs: TrackLog[], propriedade: keyof TrackLog): number {
+  const total = trackLogs.reduce((acc, curr) => acc + Number(curr[propriedade]), 0);
+  return total / trackLogs.length;
+}
+
+function encontrarMaximo(trackLogs: TrackLog[], propriedade: keyof TrackLog): number | null {
+  let maximo: number | null = null;
+  for (const trackLog of trackLogs) {
+    if (trackLog[propriedade] && (maximo === null || Number(trackLog[propriedade]!) > maximo)) {
+      maximo = trackLog[propriedade] as number;
+    }
+  }
+  return maximo;
+}
+
+function calcularSomatoria(trackLogs: TrackLog[], propriedade: keyof TrackLog): number {
+  let somatoria = 0;
+
+  for (const trackLog of trackLogs) {
+    const valorPropriedade = trackLog[propriedade];
+    if (typeof valorPropriedade === 'number') {
+      somatoria += valorPropriedade;
+    }
+  }
+
+  return somatoria;
+}
+export interface EstatisticasPiloto {
+  title: string;
+  icon: IconType;
+  value: string;
+};
+const icons = {
+  distance: RiPinDistanceFill,
+  duration: FaRegClock,
+  gain: PiAirplaneInFlightBold,
+  accumulatedDistance: GiPathDistance,
+  count: GiPathDistance,
+};
+
+
+export const GenerateStatisticsPilot = (trackLogs: Array<TrackLog>): Array<EstatisticasPiloto> => {
+  const estatisitcas: Array<EstatisticasPiloto> = [];
+  estatisitcas.push({ title: 'Quantidade de Voos', icon: icons['count'], value: trackLogs.length.toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Horas de Voo', icon: icons['count'], value: millisecondsToTime(calcularSomatoria(trackLogs, 'duration')) });
+  estatisitcas.push({ title: 'Distância média', icon: icons['distance'], value: calcularMedia(trackLogs, 'distance').toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Distância acumulada média', icon: icons['accumulatedDistance'], value: calcularMedia(trackLogs, 'accumulatedDistance').toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Permanencia média', icon: icons['duration'], value: millisecondsToTime(calcularMedia(trackLogs, 'duration')) });
+  estatisitcas.push({ title: 'Ganho de altitude médio', icon: icons['gain'], value: calcularMedia(trackLogs, 'maxGain').toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Distância máxima', icon: icons['distance'], value: encontrarMaximo(trackLogs, 'distance')!.toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Distância máxima acumulada', icon: icons['accumulatedDistance'], value: encontrarMaximo(trackLogs, 'accumulatedDistance')!.toLocaleString('pt-br') });
+  estatisitcas.push({ title: 'Maior permanência', icon: icons['duration'], value: millisecondsToTime(encontrarMaximo(trackLogs, 'duration')!) });
+  estatisitcas.push({ title: 'Maior ganho de altitude', icon: icons['gain'], value: encontrarMaximo(trackLogs, 'maxGain')!.toLocaleString('pt-br') });
+
+  return estatisitcas;
+}
 

@@ -52,9 +52,7 @@ export default function NewScene(props: {
   const { userData } = useUserData();
 
   async function createNewScene() {
-    console.log('criando nova cena');
     const czml = await newSceneCZML()
-    console.log(czml);
     setCurrentCzml(czml);
   }
 
@@ -157,7 +155,11 @@ export default function NewScene(props: {
       props.model!,
       props.flight!
     )
+
+    if (!tracklog) return;
+
     setTracklog(tracklog);
+    
     const lastPoints = tracklog.trackLogData!.flightPoints.length;
     const initialDateScene = JulianDate.fromDate(new Date(tracklog.trackLogData?.flightPoints[0].timestamp!));
     const endDateScene = JulianDate.fromDate(

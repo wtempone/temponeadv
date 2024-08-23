@@ -10,7 +10,8 @@ import { TimeFormated, millisecondsToTime } from '~/components/shared/helpers';
 import { TrackLog } from '~/lib/repositories/userTrackLogRepository';
 import ModalNewFotoAdvanceCropper from '../../shared/Cropper/ModalNewFotoAdvanceCropper';
 import classes from './NewTracklog.module.css';
-import { RiDeleteBinLine } from "react-icons/ri";
+import { RiDeleteBinLine, RiPinDistanceFill } from "react-icons/ri";
+import { GiPathDistance } from "react-icons/gi";
 
 export default function NewTracklog(props: { Tracklog: TrackLog, close: () => void, setFotos: React.Dispatch<React.SetStateAction<string[]>>, confirm: () => void }) {
   const prototipes = [
@@ -33,6 +34,16 @@ export default function NewTracklog(props: { Tracklog: TrackLog, close: () => vo
       field: props.Tracklog.maxGain,
       icon: <PiAirplaneInFlightBold />,
       transform: (value: any) => (`${value} m`)
+    },
+    {
+      field: props.Tracklog.distance,
+      icon: < RiPinDistanceFill />,
+      transform: (value: any) => (`${value.toLocaleString('pt-br')} m`)
+    },
+    {
+      field: props.Tracklog.accumulatedDistance,
+      icon: <GiPathDistance />,
+      transform: (value: any) => (`${value.toLocaleString('pt-br')} m`)
     },
     {
       field: props.Tracklog.competitionClass,

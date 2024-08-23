@@ -22,6 +22,7 @@ const IndexScreen = lazy(() => import('~/components/screens/Home/Home'));
 const ProfileScreen = lazy(() => import('~/components/screens/Profile/ProfileForm'));
 const ActivityScreen = lazy(() => import('~/components/screens/Activity/Activity'))
 const ActivityDateScreen = lazy(() => import('~/components/screens/Activity/ActivityDate'))
+const ActivityUserScreen = lazy(() => import('~/components/screens/Activity/ActivityUser'))
 const SceneScreen = lazy(() => import('~/components/screens/Scene/Scene'))
 const PaymentScreen = lazy(() => import('~/components/screens/Payment/PaymentForm'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
@@ -94,6 +95,10 @@ const InnerRouter = () => {
         {
           path: '/activity/:id',
           element: <ActivityDateScreen />,
+        },
+        {
+          path: '/userActivity/:id',
+          element: <ActivityUserScreen />,
         },
 
         {

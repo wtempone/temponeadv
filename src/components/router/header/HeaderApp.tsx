@@ -22,7 +22,8 @@ import { useDisclosure } from '@mantine/hooks';
 import {
   IconBook,
   IconChevronDown,
-  IconCoin
+  IconCoin,
+  IconExternalLink
 } from '@tabler/icons-react';
 import { BiNews, BiTransfer } from "react-icons/bi";
 import companyLogo from "../../../assets/images/app-logo-circular.svg";
@@ -33,33 +34,9 @@ import { useAuthState } from '~/components/contexts/UserContext';
 import { useUserData } from '~/components/contexts/UserDataContext';
 import { LogOut } from '~/lib/authServices';
 import classes from './HeaderApp.module.css';
+import { useErrorBoundary } from 'react-error-boundary';
+import { FaRegPaperPlane } from 'react-icons/fa';
 
-const areaLogada = [
-  {
-    icon: IconBook,
-    title: 'Editar Perfil',
-    description: 'Atualize os dados do seu perfil',
-    link: '/profile'
-  },
-  // {
-  //   icon: IconCoin,
-  //   title: 'Pagamento',
-  //   description: 'Verifique seus pagamentos de anuidades e inscrições',
-  //   link: '/payment'
-  // },
-  // {
-  //   icon: BiTransfer,
-  //   title: 'Sincronização',
-  //   description: 'Configure seus dados de sincronização com outros parceiros',
-  //   link: '/sincronize'
-  // },
-  // {
-  //   icon: BiNews,
-  //   title: 'Noticias',
-  //   description: 'Cadastre novas notícias',
-  //   link: '/news'
-  // }
-];
 
 export function HeaderApp() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -79,6 +56,46 @@ export function HeaderApp() {
   const [foto, setFoto] = useState<string | null>(null)
   const [nome, setNome] = useState<string | null>(null)
   const [isAuthenticated, setAutenticate] = useState<Boolean>(false)
+
+  const areaLogada = [
+    {
+      icon: IconExternalLink,
+      title: 'Envie seu arquivo',
+      description: 'Envie seu arquivo de tracklog para o site',
+      link: '/uploadTrackFile'
+    },
+    {
+      icon: FaRegPaperPlane,
+      title: 'Meus Voos',
+      description: 'Visualise seus voos',
+      link: '/userActivity/' + userData?.id
+    },
+    {
+      icon: IconBook,
+      title: 'Editar Perfil',
+      description: 'Atualize os dados do seu perfil',
+      link: '/profile'
+    },
+
+    // {
+    //   icon: IconCoin,
+    //   title: 'Pagamento',
+    //   description: 'Verifique seus pagamentos de anuidades e inscrições',
+    //   link: '/payment'
+    // },
+    // {
+    //   icon: BiTransfer,
+    //   title: 'Sincronização',
+    //   description: 'Configure seus dados de sincronização com outros parceiros',
+    //   link: '/sincronize'
+    // },
+    // {
+    //   icon: BiNews,
+    //   title: 'Noticias',
+    //   description: 'Cadastre novas notícias',
+    //   link: '/news'
+    // }
+  ];
 
   const links = areaLogada.map((item) => (
     <UnstyledButton
@@ -154,9 +171,9 @@ export function HeaderApp() {
             <Text className={classes.link} component={Link} variant='link' to='/'>
               Quem Somos
             </Text>
-            {/* <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
+            <Text className={classes.link} component={Link} variant='link' to='/beapilot'>
               Seja um piloto
-            </Text> */}
+            </Text>
             <Text className={classes.link} component={Link} variant='link' to='/activity'>
               Voos do dia
             </Text>
@@ -254,9 +271,9 @@ export function HeaderApp() {
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/'>
             Quem Somos
           </Text>
-          {/* <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
+          <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/beapilot'>
             Seja um piloto
-          </Text> */}
+          </Text>
           {/* <Text className={classes.link} onClick={closeDrawer} component={Link} variant='link' to='/news'>
             Notícias
           </Text> */}

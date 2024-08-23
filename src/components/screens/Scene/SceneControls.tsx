@@ -5,9 +5,9 @@ import { IconChevronUp } from '@tabler/icons-react';
 import { Cartesian3, Cartographic, Viewer as CesiumViewer, JulianDate, Timeline } from 'cesium';
 import { useEffect, useState } from 'react';
 import GaugeComponent from 'react-gauge-component';
-import { IoCloseOutline, IoColorPaletteOutline, IoPauseOutline, IoPlay, IoPlayBackOutline, IoPlayForwardOutline, IoPlayOutline, IoPlaySkipBackOutline, IoPlaySkipForwardOutline } from "react-icons/io5";
-import { MdQueryStats } from "react-icons/md";
-import { PiUsersThree } from "react-icons/pi";
+import { IoCloseOutline, IoColorPaletteOutline, IoPaperPlaneOutline, IoPauseOutline, IoPlay, IoPlayBackOutline, IoPlayForwardOutline, IoPlayOutline, IoPlaySkipBackOutline, IoPlaySkipForwardOutline } from "react-icons/io5";
+import { MdQueryStats, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
+import { PiPaperPlaneTiltLight, PiUsersThree } from "react-icons/pi";
 import { useNavigate } from 'react-router-dom';
 import { CesiumComponentRef } from 'resium';
 import { TrackLog } from '~/lib/repositories/userTrackLogRepository';
@@ -16,6 +16,12 @@ import { Notification } from '@mantine/core';
 import { UserData } from '~/lib/repositories/userDataRepository';
 import { TimeFormated, millisecondsToTime, tsFBToDate, tsToTime } from '~/components/shared/helpers';
 import { FaRegPaperPlane } from 'react-icons/fa';
+import { useMove } from '@mantine/hooks';
+import { ImZoomIn } from "react-icons/im";
+import { ImZoomOut } from "react-icons/im";
+import { SlPaperPlane } from "react-icons/sl";
+import { RiSendPlaneLine } from 'react-icons/ri';
+import ModalPhotos from '~/components/shared/modals/modalPhotos';
 
 interface Stats {
     GpsAltitute: string;
@@ -35,6 +41,8 @@ export function SceneControls(props: {
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [indexVelocityPlayback, setIndexVelocityPlayback] = useState(7);
+    const [zoomValue, setZoomValue] = useState(0.2);
+    const { ref } = useMove(({ y }) => setZoomValue(1 - y));
 
     const velocities = [-64, -32, -16, -8, -4, -2, 1, 2, 4, 8, 16, 32, 64];
     function changeVelocity(forward: boolean) {
@@ -84,8 +92,6 @@ export function SceneControls(props: {
     });
 
     const [usersInFlight, setUsersInFlight] = useState<Array<UserData> | undefined>(undefined)
-    //const [tickInterval, setTickInterval] = useState<NodeJS.Timer>();
-
 
     useEffect(() => {
         if (props.viewer.current!.cesiumElement) {
@@ -113,6 +119,13 @@ export function SceneControls(props: {
         }
 
     }
+    function zoomIn() {
+        props.viewer!.current!.cesiumElement!.scene.camera.zoomIn(10);
+    }
+    function zoomOut() {
+        props.viewer!.current!.cesiumElement!.scene.camera.zoomOut(10);
+    }
+
     function orbit() {
         props.viewer!.current!.cesiumElement!.scene.camera.rotateRight(0.001);
     }
@@ -190,9 +203,9 @@ export function SceneControls(props: {
                         variant='default'
                         onClick={() => {
                             changeTrackEntity(item);
-                            props.viewer.current!.cesiumElement!.clock!.currentTime =  JulianDate.fromDate(tsFBToDate(item.takeoff)!)
+                            props.viewer.current!.cesiumElement!.clock!.currentTime = JulianDate.fromDate(tsFBToDate(item.takeoff)!)
                         }} >
-                        <FaRegPaperPlane  style={{ width: rem(22), height: rem(22) }} />
+                        <FaRegPaperPlane style={{ width: rem(22), height: rem(22) }} />
                     </ActionIcon>
                 </Group>
             </Group>
@@ -217,6 +230,9 @@ export function SceneControls(props: {
             <Table.Td>{TimeFormated(tsFBToDate(item.takeoff)!)}</Table.Td>
             <Table.Td>{TimeFormated(tsFBToDate(item.landing)!)}</Table.Td>
             <Table.Td>{millisecondsToTime(item.duration!)}</Table.Td>
+            <Table.Td>{item.distance!.toLocaleString('pt-br') + ' m'}</Table.Td>
+            <Table.Td>{item.accumulatedDistance!.toLocaleString('pt-br') + ' m'}</Table.Td>
+            <Table.Td>{item.maxGain!.toLocaleString('pt-br') + ' m'}</Table.Td>
         </Table.Tr>
     ));
 
@@ -252,15 +268,10 @@ export function SceneControls(props: {
     }
     return (
         <>
-            {drawerOpened && rowsUsers.length > 1 && (
+            {drawerOpened && (
                 <Paper p='xs' className={classes.stats_intro} withBorder>
                     <Center>
                         <Title size='h4'>
-                            Atividades do dia
-                        </Title>
-                    </Center>
-                    <Center>
-                        <Title size='h6' c='dimmed'>
                             {JulianDate.toDate(props.viewer.current!.cesiumElement!.clock.currentTime).toLocaleDateString()}
                         </Title>
                     </Center>
@@ -273,9 +284,9 @@ export function SceneControls(props: {
                                         <Table.Th>Decolagem</Table.Th>
                                         <Table.Th>Pouso</Table.Th>
                                         <Table.Th>Duração</Table.Th>
-                                        <Table.Th>Distância <br /> Linha reta</Table.Th>
-                                        <Table.Th>Distância <br /> Acumulada</Table.Th>
-                                        <Table.Th>Máximo <br /> Ganho Alt.</Table.Th>
+                                        <Table.Th>Distância da Decolagem</Table.Th>
+                                        <Table.Th>Distância Acumulada</Table.Th>
+                                        <Table.Th>Ganho Max. de Altitude</Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
                                 <Table.Tbody>{rowsUsers}</Table.Tbody>
@@ -483,7 +494,29 @@ export function SceneControls(props: {
                             )}
                         </div>
                     </Paper>
-
+                    <Paper className={classes.zoom_panel} withBorder radius="md" p="xs" >
+                        <Stack gap='lg'>
+                            <Text c="dimmed" size="xs">
+                                Zoom
+                            </Text>
+                            <Center>
+                                <ActionIcon
+                                    radius={50}
+                                    variant='default'
+                                    onClick={() => zoomIn()} >
+                                    <MdZoomInMap style={{ width: rem(22), height: rem(22) }} />
+                                </ActionIcon>
+                            </Center>
+                            <Center>
+                                <ActionIcon
+                                    radius={50}
+                                    variant='default'
+                                    onClick={() => zoomOut()} >
+                                    <MdZoomOutMap style={{ width: rem(22), height: rem(22) }} />
+                                </ActionIcon>
+                            </Center>
+                        </Stack>
+                    </Paper>
                     <Paper className={classes.stats_right} withBorder radius="md" p="xs" >
                         <Stack gap={0}>
                             {stats?.GpsAltitute && (
@@ -518,6 +551,9 @@ export function SceneControls(props: {
                             )}
                         </Stack>
                     </Paper>
+                    {/* <Paper className={classes.media} withBorder radius="md" p="xs" >
+                        <ModalPhotos position='absolute' Tracklog={selectedTracklog} />
+                    </Paper> */}
                 </>
 
             )}
@@ -589,6 +625,19 @@ export function SceneControls(props: {
                                 </SimpleGrid>
                             </HoverCard.Dropdown>
                         </HoverCard>
+                    )}
+                    {selectUsers.length == 1 && (
+
+                        <ActionIcon
+                            radius={50}
+                            variant='default'
+                            onClick={() => {
+                                changeTrackEntity(props.tracklogs[0]);
+                            }} >
+                            <IoPaperPlaneOutline   style={{ width: rem(22), height: rem(22) }} />
+                        </ActionIcon>
+
+
                     )}
                     <ActionIcon
                         className={classes.subLink}

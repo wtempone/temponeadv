@@ -5,13 +5,20 @@ import { PiAirplaneInFlightBold, PiAirplaneLandingDuotone, PiAirplaneTakeoffDuot
 import { TbDeviceMobileCode, TbScoreboard } from "react-icons/tb";
 import { TimeFormated, millisecondsToTime, tsFBToDate } from '~/components/shared/helpers';
 import classes from './ItemActivity.module.css';
-import { RiMovieLine } from 'react-icons/ri';
+import { RiMovieLine, RiPinDistanceFill } from 'react-icons/ri';
 import { Link } from 'react-router-dom';
-import { FaPlay, FaRegClock } from 'react-icons/fa';
+import { FaPlay, FaRegClock, FaRegPaperPlane } from 'react-icons/fa';
 import { Carousel } from '@mantine/carousel';
 import { modals } from '@mantine/modals';
+import { IoCloudDownloadOutline, IoTrashOutline } from 'react-icons/io5';
+import { useUserData } from '~/components/contexts/UserDataContext';
+import { GiPathDistance } from 'react-icons/gi';
+import { DeleteTracklog, TrackLog } from '~/lib/repositories/userTrackLogRepository';
+import ModalPhotos from '~/components/shared/modals/modalPhotos';
 
-export default function ItemtActivity(props: { Tracklog: any }) {
+export default function ItemtActivity(props: { Tracklog: TrackLog, parentRefresh: any }) {
+  const { userData } = useUserData();
+
   const prototipes = [
     {
       field: props.Tracklog.takeoff,
@@ -31,7 +38,17 @@ export default function ItemtActivity(props: { Tracklog: any }) {
     {
       field: props.Tracklog.maxGain,
       icon: <PiAirplaneInFlightBold />,
-      transform: (value: any) => (`${value} m`)
+      transform: (value: any) => (`${value.toLocaleString('pt-br')} m`)
+    }, ,
+    {
+      field: props.Tracklog.distance,
+      icon: < RiPinDistanceFill />,
+      transform: (value: any) => (`${value.toLocaleString('pt-br')} m`)
+    }, ,
+    {
+      field: props.Tracklog.accumulatedDistance,
+      icon: <GiPathDistance />,
+      transform: (value: any) => (`${value.toLocaleString('pt-br')} m`)
     },
     {
       field: props.Tracklog.competitionClass,
@@ -56,51 +73,76 @@ export default function ItemtActivity(props: { Tracklog: any }) {
   ]
   const data = prototipes.map((item, index) => (
     <div key={index}>
-      {item.transform(item.field) && (
+      {item!.transform(item!.field) && (
         <Group gap={0}>
           <Text fz="sm" c="dimmed" fw={500}>
-            {item.icon}
+            {item!.icon}
           </Text>
           <Text fz="xs" c="dimmed" lh={1} px={10}>
-            {item.transform(item.field)}
+            {item!.transform(item!.field)}
           </Text>
         </Group>
       )
       }
     </div>
   ));
-  const zoomFotos = () => {
+  const confirmDeleteTracklog = (id: string) => {
     modals.open({
-      title: 'Fotos',
-      withCloseButton: true,
+      centered: true,
       children: (
-        <Carousel
-          loop
-          slideGap="xs"
-          controlsOffset="xs"
-          align="start"
-          withIndicators>
-          {props.Tracklog.photosURL.map((image: string, index: number) => (
-            <Carousel.Slide key={index} >
-              <Image src={image} />
-            </Carousel.Slide>
-          ))}
-        </Carousel>
+        <>
+          <Center>
+            <Text >Deseja excluir o voo e seus arquivos?</Text>
+          </Center>
+          <Center>
+            <Group justify="space-between">
+              <Button onClick={() => modals.closeAll()} mt="md">
+                Cancelar
+              </Button>
+              <Button onClick={
+                async () => {
+                  await deleteTracklog(id);
+                  modals.closeAll()
+                }
+              } mt="md">
+                Confirmar
+              </Button>
+            </Group>
+          </Center>
+        </>
       ),
     });
   }
+
+  const deleteTracklog = async (id: string) => {
+    await DeleteTracklog(id);
+    props.parentRefresh();
+  }
+
   return (
     <Card withBorder m={0} p={0} radius={0} className={classes.card}>
-      <Group p='xs'>
-        <Avatar
-          src={props.Tracklog.userData!.photoURL}
-          size='sm'
-          radius='xl'
-        />
-        <Text fz="sm" fw={700} inline={true}>
-          {props.Tracklog.userData!.nome}
-        </Text>
-      </Group>
+      {props.Tracklog.userData && (
+        <Group p='xs' justify='space-between'>
+          <Group>
+            <Avatar
+              src={props.Tracklog.userData!.photoURL}
+              size='sm'
+              radius='xl'
+            />
+            <Text fz="sm" fw={700} inline={true}>
+              {props.Tracklog.userData!.nome}
+            </Text>
+          </Group>
+          <UnstyledButton
+            component={Link}
+            to={`/userActivity/${props.Tracklog.userData!.id}`}
+            aria-label="Ver perfil"
+            ml='xs'>
+            <FaRegPaperPlane />
+          </UnstyledButton>
+        </Group>
+      )}
+
       <Card.Section>
       </Card.Section>
       <Card.Section m={0} p={0} >
@@ -120,45 +162,39 @@ export default function ItemtActivity(props: { Tracklog: any }) {
           </Group>
         </Paper>
       </Card.Section>
-      {props.Tracklog.photosURL.length > 0 && (
+      {props.Tracklog.photosURL && props.Tracklog.photosURL.length > 0 && (
         <Card.Section m={0} px={0}>
-          <Group justify='space-between'>
-            <Text fz="md" m='xs' fw={700} >
-              Fotos
-            </Text>
-            <UnstyledButton
-              onClick={zoomFotos}
-              variant="default"
-              size="xl"
-              aria-label="Ver fotos"
-              mr='xs'
-            >
-              <MdZoomOutMap  size={20}/>
-            </UnstyledButton>
-          </Group>
-          <Carousel
-            p={0}
-            m={0}
-            loop
-            slideSize="100"
-            height={100}
-            slideGap="xs"
-            controlsOffset="xs"
-            align="start"
-            withIndicators>
-
-            {props.Tracklog.photosURL.map((image: string, index: number) => (
-              <Carousel.Slide key={index} >
-                <Image src={image} />
-              </Carousel.Slide>
-            ))}
-          </Carousel>
+          <ModalPhotos Tracklog={props.Tracklog} />
         </Card.Section>
       )}
 
 
       <Card.Section m={0} p='xs'>
         <Group justify='end'>
+          {userData && props.Tracklog.userId == userData.id && (
+            <Button
+              radius="md"
+              size="md"
+              variant="danger"
+              rightSection={<IoTrashOutline />}
+              onClick={() => confirmDeleteTracklog(props.Tracklog.id)}
+            >
+              Excluir
+            </Button>
+          )}
+          {userData && props.Tracklog.userId == userData.id && (
+            <Button
+              radius="md"
+              size="md"
+              variant="limk"
+
+              rightSection={<IoCloudDownloadOutline />}
+            >
+              Download IGC
+            </Button>
+          )}
+
+
           <Button
             radius="md"
             size="md"
@@ -170,6 +206,7 @@ export default function ItemtActivity(props: { Tracklog: any }) {
             Ver
           </Button>
         </Group>
+
       </Card.Section>
 
     </Card>

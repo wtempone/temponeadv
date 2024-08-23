@@ -179,10 +179,10 @@ export default function Scene() {
           log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].gpsAltitude);
         const updatedLastPositions = await sampleTerrainMostDetailed(terrainProvider, [lastPosition]);
         if (updatedLastPositions[0].height) {
-          for (let i = log.trackLogData!.flightPoints.length - 1; i > 0 ; i--) {
-            console.log(i, 'updatedLastPositions[0].height:', updatedLastPositions[0].height,'log.trackLogData!.flightPoints[i].gpsAltitude:', log.trackLogData!.flightPoints[i].gpsAltitude)
-            if (log.trackLogData!.flightPoints[i].gpsAltitude <  updatedLastPositions[0].height) {
-              log.trackLogData!.flightPoints[i].gpsAltitude =  updatedLastPositions[0].height;
+          for (let i = log.trackLogData!.flightPoints.length - 1; i > 0; i--) {
+            console.log(i, 'updatedLastPositions[0].height:', updatedLastPositions[0].height, 'log.trackLogData!.flightPoints[i].gpsAltitude:', log.trackLogData!.flightPoints[i].gpsAltitude)
+            if (log.trackLogData!.flightPoints[i].gpsAltitude < updatedLastPositions[0].height) {
+              log.trackLogData!.flightPoints[i].gpsAltitude = updatedLastPositions[0].height;
             } else {
               break;
             }
@@ -205,23 +205,47 @@ export default function Scene() {
       const distancesDec = formataCustomPropertie(log.trackLogData!.distanceDecProperties);
 
       const colorPath = Color.fromCssColorString(log.userData?.gliderSettings?.corRastro!);
+      const positions = [
+        {
+          interval: initialDateScene.toString() + '/' + start.toString(),
+          cartographicDegrees: [
+            log.trackLogData!.flightPoints[0].longitude,
+            log.trackLogData!.flightPoints[0].latitude,
+            log.trackLogData!.flightPoints[0].gpsAltitude,
+          ]
+        },
+        {
+          interval: start.toString() + '/' + end.toString(),
+          cartographicDegrees: flightPointsDegrees!.flat(),
+          interpolationAlgorithm: 'LAGRANGE',
+          interpolationDegree: 3,
+        },
+        {
+          interval: end.toString() + '/' + endDateScene.toString(),
+          cartographicDegrees: [
+            log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].longitude,
+            log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].latitude,
+            log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].gpsAltitude,
+          ]
+        }
+      ];
       return {
         id: log.id,
-        name: log.userData?.nome,
+        name: log.userData?.nome, // ScreenOptions - Apelido
         availability: availability,
         label: {
           fillColor: {
-            rgba: [0, 0, 0, 255],
+            rgba: [0, 0, 0, 255], // corFundoLegenda
           },
           outlineColor: {
             rgba: [
-              0, 0, 0, 255
+              0, 0, 0, 255 // corTextoLegenda
             ]
           },
           eyeOffset: {
             cartesian: [0.0, 6.0, -4.0],
           },
-          scale: 0.25,
+          scale: 0.15, 
           font: '40pt Arial',
           horizontalOrigin: 'CENTER',
           style: 'FILL',
@@ -234,53 +258,30 @@ export default function Scene() {
         },
         model: {
           gltf: log.gliderURL,
-          scale: 1,
+          scale: 3, // tamanhoModelo
         },
         orientation: {
           velocityReference: '#position',
         },
         path: {
           leadTime: -0.10,
-          //trailTime: 3,
+          //trailTime: 3, // tempoRastro
           resolution: 0.1,
           material: {
             solidColor: {
               color:
               {
-                rgba: [colorPath.red * 255, colorPath.green * 255, colorPath.blue * 255, colorPath.alpha * 255],
+                rgba: [colorPath.red * 255, colorPath.green * 255, colorPath.blue * 255, colorPath.alpha * 255], // corRastro
               },
             },
           },
           width: [
             {
-              number: 1.0,
+              number: 1.0 // larguraRastro 
             },
           ],
         },
-        position: [
-          {
-            interval: initialDateScene.toString() + '/' + start.toString(),
-            cartographicDegrees: [
-              log.trackLogData!.flightPoints[0].longitude,
-              log.trackLogData!.flightPoints[0].latitude,
-              log.trackLogData!.flightPoints[0].gpsAltitude,
-            ]
-          },
-          {
-            interval: start.toString() + '/' + end.toString(),
-            cartographicDegrees: flightPointsDegrees!.flat(),
-            interpolationAlgorithm: 'LAGRANGE',
-            interpolationDegree: 3,
-          },
-          {
-            interval: end.toString() + '/' + endDateScene.toString(),
-            cartographicDegrees: [
-              log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].longitude,
-              log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].latitude,
-              log.trackLogData!.flightPoints[log.trackLogData!.flightPoints.length - 1].gpsAltitude,
-            ]
-          }
-        ],
+        position: positions,
         properties: {
           velocidade: [
             {

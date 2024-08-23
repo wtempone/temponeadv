@@ -23,6 +23,7 @@ export default function Activity() {
   const { userData } = useUserData();
   const navigate = useNavigate();
   const [visible, { toggle }] = useDisclosure(true);
+
   useEffect(() => {
     if (!initiliazed) {
       refresh();
@@ -32,12 +33,15 @@ export default function Activity() {
 
   function fetchMoreData() {
   }
+
+
   function refresh() {
     ListAllTrackLogDataUser(10).then((resp) => {
       setItems(resp!.records);
       setHasMore(resp!.hasMore);
       toggle();
     });
+
   }
   function openModalSendFile() {
     if (state.state !== 'SIGNED_IN') {
@@ -53,7 +57,7 @@ export default function Activity() {
                 <Button onClick={() => modals.closeAll()} mt="md">
                   Cancelar
                 </Button>
-                <Button  onClick={() => modals.closeAll()} component={Link} to="/login" mt="md">
+                <Button onClick={() => modals.closeAll()} component={Link} to="/login" mt="md">
                   Ir para login
                 </Button>
               </Group>
@@ -74,7 +78,7 @@ export default function Activity() {
                 <Button variant="default" onClick={() => modals.closeAll()} mt="md">
                   Cancelar
                 </Button>
-                <Button  onClick={() => modals.closeAll()} component={Link} to="/profile" mt="md">
+                <Button onClick={() => modals.closeAll()} component={Link} to="/profile" mt="md">
                   Ir para cadastro
                 </Button>
               </Group>
@@ -84,7 +88,7 @@ export default function Activity() {
       } else {
         navigate('/uploadTrackFile');
       }
-    } 
+    }
   }
   return (
     <>
@@ -98,7 +102,7 @@ export default function Activity() {
           style={{ position: 'fixed', bottom: 20, right: 20, borderRadius: 50 }}
           onClick={() => openModalSendFile()}
         >
-          Envie seu arquivo 
+          Envie seu arquivo
           <IconExternalLink />
         </Button>
         <Title size='h2'>Voos do dia </Title>

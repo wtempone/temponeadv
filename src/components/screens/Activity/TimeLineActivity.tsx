@@ -26,13 +26,19 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
     )
   }
 
-  const estatisticas = props.DateActivity.estatisticas.map((stat: any, index: number) => (
-    <div key={index}>
+  const titulos = props.DateActivity.estatisticas.map((stat: any, index: number) => (
+    <div key={index} className={classes.stats}>
       <Center>
-        <Text size="xs" >
-          {stat.titulo}
+        <Text ta='center'  size="xs" >
+         {stat.titulo}
         </Text>
       </Center>
+    </div>
+  ));
+
+
+  const valores = props.DateActivity.estatisticas.map((stat: any, index: number) => (
+    <div key={index}>
       <Center>
         <Text fw={500} size="sm" className={classes.maior}>
           {stat.maior}
@@ -41,14 +47,13 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
       {(props.DateActivity.pilotos.length > 1) && (
         <Center>
           <Text fw={200} size="xs" className={classes.menor}>
-            {stat.menor}
+            {stat.menor ? stat.menor : 0}
           </Text>
         </Center>
       )}
 
     </div>
   ));
-
   const slides = props.DateActivity.photosURL.map((imagem: any, index: any) => (
     <Carousel.Slide key={index} >
       <Paper
@@ -101,6 +106,7 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
           </Center>
 
         </Paper>
+        
         {(props.DateActivity.photosURL.length > 0) && (
 
           <Carousel
@@ -116,9 +122,9 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
           </Carousel>
         )}
 
-        {(props.DateActivity.photosURL.length == 0  ) && (
+        {(props.DateActivity.photosURL.length == 0) && (
           <Paper
-    
+
             p="xl"
             radius="md"
             className={classes.card}
@@ -127,7 +133,12 @@ export default function TimeLineActivity(props: { DateActivity: any }) {
         )}
       </Card.Section>
 
-      <Card.Section className={classes.footer}>{estatisticas}</Card.Section>
+      <Card.Section className={classes.footer}>
+        <SimpleGrid w='100%' cols={4}>
+          {titulos}
+          {valores}
+        </SimpleGrid>
+      </Card.Section>
 
     </Card>
   );

@@ -18,6 +18,25 @@ export interface GliderSettings {
   gliderModel: number;
 }
 
+export interface SceneOptions {
+  apelido: string;
+  corFundoLegenda: string;
+  corTextoLegenda: string;
+  corLinhas: string;
+  corSelete: string;
+  corRoupa: string;
+  corCapacete: string;
+  corViseira: string;
+  corLuvas: string;
+  corDetalhe1: string;
+  corDetalhe2: string;
+  corDetalhe3: string;
+  corRastro: string;
+  tipoRastro: string;
+  gliderModel: number;
+}
+
+
 export interface UserData {
   id: string;
   nome: string;

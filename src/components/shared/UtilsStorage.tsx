@@ -1,4 +1,4 @@
-import { getDownloadURL, ref, uploadBytes, uploadString } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes, uploadString, listAll, deleteObject } from 'firebase/storage';
 import { useStorage } from '~/lib/firebase';
 
 export function uploadBlob(path: string, file: Blob): Promise<string | undefined> {
@@ -30,10 +30,36 @@ export function uploadBase64(path: string, base64: string): Promise<string | und
       })
         .catch((error) => {
           reject(error);
-        });;
+        });
     }).catch((error) => {
       reject(error);
     });
   });
 }
 
+export function deleteTracklogFolder(id: string): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    const storage = useStorage();
+
+    try {
+      const pathPhotos = `tracklogs/${id}/fotos`;
+      const storageFotosRef = ref(storage, pathPhotos);
+      await listAll(storageFotosRef).then((res) => {
+        res.items.forEach((itemRef) => {
+          deleteObject(itemRef);
+        });
+      });
+
+      const path = `tracklogs/${id}`;
+      const storageRef = ref(storage, path);
+      await listAll(storageRef).then((res) => {
+        res.items.forEach((itemRef) => {
+          deleteObject(itemRef);
+        });
+      })
+      resolve(true);
+    } catch (error) {
+      reject(error);
+    };
+  });
+}

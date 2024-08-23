@@ -1,0 +1,18 @@
+.root_stats {
+  background-image: linear-gradient(
+    -60deg,
+    var(--mantine-color-blue-4) 0%,
+    var(--mantine-color-blue-7) 100%
+  );
+  padding: var(--mantine-spacing-xl);
+  border-radius: var(--mantine-radius-md);
+  display: flex;
+
+  @media (max-width: $mantine-breakpoint-xs) {
+    flex-direction: column;
+  }
+}
+.icon {
+  margin-top: var(--mantine-spacing-lg);
+  color: var(--mantine-color-blue-6);
+}
