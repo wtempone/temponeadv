@@ -23,14 +23,12 @@ import { CreateUser, TranslateAuthError, signInWithEmailPassword } from '~/lib/a
 import { Link, useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { useUserData } from '~/components/contexts/UserDataContext';
-import image from "../../../assets/images/avatar/welcome_pilot.png";
 import { FooterApp } from '~/components/router/footer/FooterApp';
-import companyLogo from "../../../assets/images/app-logo-circular.svg";
+import companyLogo from '../../../assets/images/app-logo-circular.svg';
 
 export function AuthenticationForm(props: PaperProps) {
-
   const [type, toggle] = useToggle(['login', 'register']);
-  const { userData } = useUserData()
+  const { userData } = useUserData();
   const form = useForm({
     initialValues: {
       email: '',
@@ -46,91 +44,97 @@ export function AuthenticationForm(props: PaperProps) {
   });
   const navigate = useNavigate();
 
-  const openModal = (email: string, password: string) => modals.open({
-    fullScreen: true,
-    children: (
-      <Container mt='md'>
-        <Center>
-          <Title py="xl" size="h3">
-            Bem vindo!
-          </Title>
-        </Center>
-        <Center>
-          <Button
-            mb="xl"
-            variant='link'
-            size="xl" onClick={() => {
-              modals.closeAll()
-              navigate('/profile')
-            }} mt="md">
-            Continuar
-          </Button>
-        </Center>
-        <Center>
-          <Image src={image} h={300} alt="Bem vindo" />
-        </Center>
-      </Container>
-    ),
-  });
+  const openModal = (email: string, password: string) =>
+    modals.open({
+      fullScreen: true,
+      children: (
+        <Container mt="md">
+          <Center>
+            <Title py="xl" size="h3">
+              Bem vindo!
+            </Title>
+          </Center>
+          <Center>
+            <Button
+              mb="xl"
+              variant="link"
+              size="xl"
+              onClick={() => {
+                modals.closeAll();
+                navigate('/profile');
+              }}
+              mt="md"
+            >
+              Continuar
+            </Button>
+          </Center>
+        </Container>
+      ),
+    });
 
   const register = (email: string, password: string) => {
-    CreateUser(email, password).then(() => {
-      openModal(email, password);
-    }).catch((err) => {
-      notifications.show({
-        color: 'red',
-        title: 'Erro na criação de usuário',
-        message: TranslateAuthError(err.code),
+    CreateUser(email, password)
+      .then(() => {
+        openModal(email, password);
+      })
+      .catch((err) => {
+        notifications.show({
+          color: 'red',
+          title: 'Erro na criação de usuário',
+          message: TranslateAuthError(err.code),
+        });
       });
-    })
-  }
+  };
   const login = (email: string, password: string) => {
-    signInWithEmailPassword(email, password).then(() => {
-      if (userData) {
-        navigate('/')
-      } else {
-        navigate('/profile')
-      }
-    }).catch((err) => {
-
-      notifications.show({
-        color: 'red',
-        title: 'Erro no login do usuário',
-        message: TranslateAuthError(err.code),
+    signInWithEmailPassword(email, password)
+      .then(() => {
+        if (userData) {
+          navigate('/');
+        } else {
+          navigate('/profile');
+        }
+      })
+      .catch((err) => {
+        notifications.show({
+          color: 'red',
+          title: 'Erro no login do usuário',
+          message: TranslateAuthError(err.code),
+        });
       });
-    })
-  }
+  };
 
   return (
     <>
       <Container>
         <Paper radius="md" p="xl" withBorder {...props}>
-          <Center m='xl'>
-            <img src={companyLogo} id='companyLogo' style={{ width: rem(80), height: rem(80) }} alt="company logo" />
+          <Center m="xl">
+            <img src={companyLogo} id="companyLogo" style={{ width: rem(80), height: rem(80) }} alt="company logo" />
           </Center>
           <Center>
-
             <Text size="md" fw={500}>
-              {type == 'register' ? 'Registre-se' : "Faça seu login"} com
+              {type == 'register' ? 'Registre-se' : 'Faça seu login'} com
             </Text>
           </Center>
-            <Group grow mb="md" mt="md">
-              <GoogleButton fullWidth radius="xl">Google</GoogleButton>
-            </Group>
+          <Group grow mb="md" mt="md">
+            <GoogleButton fullWidth radius="xl">
+              Google
+            </GoogleButton>
+          </Group>
           <Center>
             <Text size="md" fw={500} mb="md">
               ou continue com seu e-mail
             </Text>
           </Center>
-          <form onSubmit={form.onSubmit((user) => {
-            if (type === 'register') {
-              register(user.email, user.password)
-            } else {
-              login(user.email, user.password)
-            }
-          })}>
+          <form
+            onSubmit={form.onSubmit((user) => {
+              if (type === 'register') {
+                register(user.email, user.password);
+              } else {
+                login(user.email, user.password);
+              }
+            })}
+          >
             <Stack>
-
               <TextInput
                 required
                 label="Email"
@@ -164,17 +168,16 @@ export function AuthenticationForm(props: PaperProps) {
               <Anchor component="button" type="button" c="dimmed" onClick={() => toggle()} size="xs">
                 {type === 'register'
                   ? 'Já possui uma conta? Faça seu login'
-                  : "Ainda não tem uma conta? Registe-se no nosso site"}
+                  : 'Ainda não tem uma conta? Registe-se no nosso site'}
               </Anchor>
               <Button type="submit" radius="xl">
-                {type === 'register' ? "Cadastrar" : "Logar"}
+                {type === 'register' ? 'Cadastrar' : 'Logar'}
               </Button>
             </Group>
           </form>
         </Paper>
       </Container>
       <FooterApp />
-
     </>
   );
 }

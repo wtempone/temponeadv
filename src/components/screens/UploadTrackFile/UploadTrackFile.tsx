@@ -9,7 +9,7 @@ import {
   PaperProps,
   Stack,
   Text,
-  rem
+  rem,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
@@ -21,7 +21,6 @@ import { useNavigate } from 'react-router';
 import { LoadingMain } from '~/components/shared/Loading';
 import { GetUserData, GliderSettings } from '~/lib/repositories/userDataRepository';
 import { AddTrackLog, GetTrackLog, TrackLog } from '~/lib/repositories/userTrackLogRepository';
-import NewScene from '../Scene/NewScene';
 import Customize from '../../shared/Customize/Customize';
 import NewTracklog from './NewTracklog';
 import { useUserData } from '~/components/contexts/UserDataContext';
@@ -54,7 +53,6 @@ export default function UploadTrackFile(props: PaperProps) {
         } catch (error) {
           reject(error);
         }
-
       };
       fileReader.onerror = (error) => {
         reject(error);
@@ -63,10 +61,10 @@ export default function UploadTrackFile(props: PaperProps) {
     });
   }
 
-  async function changeFile(file : File |null) {
+  async function changeFile(file: File | null) {
     setFile(file);
-   const icgFile = await paseFile(file!);
-   setDataInicio(new Date(icgFile!.fixes[0].timestamp));  
+    const icgFile = await paseFile(file!);
+    setDataInicio(new Date(icgFile!.fixes[0].timestamp));
   }
   function modalError(title: string, message: string) {
     modals.open({
@@ -116,21 +114,13 @@ export default function UploadTrackFile(props: PaperProps) {
         return;
       }
     }
-    setFlight(dataFligth!)
+    setFlight(dataFligth!);
     openCustomize();
   };
 
   function publicarTracklog() {
     toggle();
-    AddTrackLog(
-      tracklog!,
-      file!,
-      model!,
-      definirPadrao,
-      imagemCapa!,
-      gliderSetings!,
-      fotos
-    ).then(async () => {
+    AddTrackLog(tracklog!, file!, model!, definirPadrao, imagemCapa!, gliderSetings!, fotos).then(async () => {
       if (definirPadrao) {
         if (userData) {
           const user = await GetUserData(userData!.id);
@@ -140,21 +130,20 @@ export default function UploadTrackFile(props: PaperProps) {
       toggle();
       navigate('/activity');
     });
-
   }
 
-  const handleCustomizeConfirm = async (gliderSetings: GliderSettings, model?: Blob, definirPadrao?: boolean) =>  {
+  const handleCustomizeConfirm = async (gliderSetings: GliderSettings, model?: Blob, definirPadrao?: boolean) => {
     setGliderSetings(gliderSetings);
     setModel(model!);
     setDefinirPadrao(definirPadrao!);
     closeCustomize();
     openNewScene();
-  }
+  };
 
   const handleNewSceneConfirm = () => {
     closeNewScene();
     openTracklog();
-  }
+  };
   const [visible, { toggle }] = useDisclosure(false);
 
   const { userData, setUserData } = useUserData();
@@ -164,14 +153,14 @@ export default function UploadTrackFile(props: PaperProps) {
     if (user) {
       setUserData(user);
     }
-  }
-  
+  };
+
   useEffect(() => {
-    if (userData){
+    if (userData) {
       refreshUserData();
     }
   }, []);
-  
+
   return (
     <>
       <LoadingOverlay visible={visible} overlayProps={{ blur: 5 }} loaderProps={{ children: <LoadingMain /> }} />
@@ -200,17 +189,7 @@ export default function UploadTrackFile(props: PaperProps) {
         closeOnClickOutside={false}
         closeOnEscape={false}
         centered
-      >
-        <NewScene
-          gliderSettings={gliderSetings}
-          model={model}
-          flight={flight}
-          setTracklog={setTracklog}
-          setImagemCapa={setImagemCapa}
-          confirm={handleNewSceneConfirm}
-          close={closeNewScene}
-        />
-      </Modal>
+      ></Modal>
       {tracklog && (
         <Modal
           fullScreen={true}
@@ -221,15 +200,9 @@ export default function UploadTrackFile(props: PaperProps) {
           closeOnEscape={false}
           centered
         >
-          <NewTracklog
-            Tracklog={tracklog!}
-            close={closeTracklog}
-            setFotos={setFotos}
-            confirm={publicarTracklog}
-          />
+          <NewTracklog Tracklog={tracklog!} close={closeTracklog} setFotos={setFotos} confirm={publicarTracklog} />
         </Modal>
       )}
-
 
       <Container>
         <Center>
@@ -245,8 +218,8 @@ export default function UploadTrackFile(props: PaperProps) {
             <Paper radius="md" p={{ base: 'sm', sm: 'xl' }} withBorder {...props}>
               {!file && (
                 <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                  Selecione o arquivo para importação. Nós aceitamos apennas arquivos <i>.igc</i> com um tamanho de
-                  até 30mb.
+                  Selecione o arquivo para importação. Nós aceitamos apennas arquivos <i>.igc</i> com um tamanho de até
+                  30mb.
                 </Text>
               )}
               {file && (
@@ -274,16 +247,19 @@ export default function UploadTrackFile(props: PaperProps) {
             </Paper>
           </Center>
           <Center>
-            <FileButton onChange={changeFile} accept='*/*'>
+            <FileButton onChange={changeFile} accept="*/*">
               {(props) => (
-                <Button variant='default' size="md" radius="xl" mt="xs" {...props}>
+                <Button variant="default" size="md" radius="xl" mt="xs" {...props}>
                   Selecionar arquivo
                 </Button>
               )}
             </FileButton>
           </Center>
           <Center>
-            <Text size="sm" c="dimmed"> {datainicio?.toString()} </Text>
+            <Text size="sm" c="dimmed">
+              {' '}
+              {datainicio?.toString()}{' '}
+            </Text>
           </Center>
         </Stack>
         <Center mt="xl">

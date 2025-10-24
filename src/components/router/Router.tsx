@@ -2,31 +2,20 @@ import { LoadingOverlay } from '@mantine/core';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Outlet, RouteObject, useRoutes } from 'react-router-dom';
 import AccessDenied from '../screens/AcessoNegado';
-import Beapilot from '../screens/Beapilot/Beapilot';
 import UnderConstruction from '../screens/EmConstrucao';
 import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
 import { Profile } from '../screens/Profile/Profile';
-import Customize from '../shared/Customize/Customize';
 import UploadTrackFile from '../screens/UploadTrackFile/UploadTrackFile';
 import { HeaderApp } from './header/HeaderApp';
 import { PrivateRoute } from './PrivateRoute';
 import { ModalsProvider } from '@mantine/modals';
 
-const Loading = () => <LoadingOverlay
-  visible={true}
-  zIndex={1000}
-  overlayProps={{ radius: "sm", blur: 2 }}
-/>;
+const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
 const IndexScreen = lazy(() => import('~/components/screens/Home/Home'));
 const ProfileScreen = lazy(() => import('~/components/screens/Profile/ProfileForm'));
-const ActivityScreen = lazy(() => import('~/components/screens/Activity/Activity'))
-const ActivityDateScreen = lazy(() => import('~/components/screens/Activity/ActivityDate'))
-const ActivityUserScreen = lazy(() => import('~/components/screens/Activity/ActivityUser'))
-const SceneScreen = lazy(() => import('~/components/screens/Scene/Scene'))
 const PaymentScreen = lazy(() => import('~/components/screens/Payment/PaymentForm'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
-
 
 function Layout() {
   return (
@@ -60,9 +49,6 @@ const InnerRouter = () => {
         {
           path: '/login',
           element: <AuthenticationForm />,
-        }, {
-          path: '/beapilot',
-          element: <Beapilot />,
         },
         {
           path: '/profileForm',
@@ -71,10 +57,6 @@ const InnerRouter = () => {
         {
           path: '/profile',
           element: <PrivateRoute component={Profile} />,
-        },
-        {
-          path: '/sincronize',
-          element: <PrivateRoute component={UnderConstruction} />,
         },
         {
           path: '/payment',
@@ -87,23 +69,6 @@ const InnerRouter = () => {
         {
           path: '/uploadTrackFile',
           element: <PrivateRoute component={UploadTrackFile} />,
-        },
-        {
-          path: '/activity',
-          element: <ActivityScreen />,
-        },
-        {
-          path: '/activity/:id',
-          element: <ActivityDateScreen />,
-        },
-        {
-          path: '/userActivity/:id',
-          element: <ActivityUserScreen />,
-        },
-
-        {
-          path: '/scene/:id?/:date?',
-          element: <SceneScreen />,
         },
         {
           path: '/acess_denied',
