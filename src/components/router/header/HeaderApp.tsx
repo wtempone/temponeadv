@@ -64,6 +64,12 @@ export function HeaderApp() {
       description: 'Atualize os dados do seu perfil',
       link: '/profile',
     },
+    {
+      icon: IconBook,
+      title: 'Areas de Atuação',
+      description: 'Atualize as áreas de atuação',
+      link: '/areas_atuacao',
+    },
 
     // {
     //   icon: IconCoin,
@@ -97,7 +103,7 @@ export function HeaderApp() {
       <Group align="flex-start" p="xs">
         <Group wrap="nowrap" justify="initial">
           <ThemeIcon size={34} variant="default" radius="md">
-            <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.blue[6]} />
+            <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.orange[6]} />
           </ThemeIcon>
           <Stack gap={0}>
             <Text size="sm" fw={500}>
@@ -171,7 +177,7 @@ export function HeaderApp() {
                       <Box component="span" mr={5}>
                         Área Logada
                       </Box>
-                      <IconChevronDown style={{ width: rem(16), height: rem(16) }} color={theme.colors.blue[6]} />
+                      <IconChevronDown style={{ width: rem(16), height: rem(16) }} color={theme.colors.orange[6]} />
                     </Center>
                   </a>
                 </HoverCard.Target>
@@ -251,7 +257,7 @@ export function HeaderApp() {
                   <Box component="span" mr={5}>
                     Área Logada
                   </Box>
-                  <IconChevronDown style={{ width: rem(16), height: rem(16) }} color={theme.colors.blue[6]} />
+                  <IconChevronDown style={{ width: rem(16), height: rem(16) }} color={theme.colors.orange[6]} />
                 </Center>
               </UnstyledButton>
               <Collapse in={linksOpened} ml="md" mt="md">

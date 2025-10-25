@@ -2,7 +2,6 @@ import { Text, Container, ActionIcon, Group, rem, Grid, Paper } from '@mantine/c
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram } from '@tabler/icons-react';
 import companyLogo from '../../../assets/images/app-logo-circular.svg';
 import classes from './FooterApp.module.css';
-import { Partners } from '~/components/router/footer/Partners';
 
 const data = [
   {
@@ -38,7 +37,7 @@ export function FooterApp() {
   const groups = data.map((group) => {
     const links = group.links.map((link, index) => (
       <Text<'a'>
-        key={index}
+        key={link.label + index}
         className={classes.link}
         component="a"
         href={link.link}
@@ -56,7 +55,11 @@ export function FooterApp() {
     );
   });
 
-  const cols = groups.map((item, index) => <Paper p="xl">{item}</Paper>);
+  const cols = groups.map((item, index) => (
+    <Paper p="xl" key={index}>
+      {item}
+    </Paper>
+  ));
 
   return <footer className={classes.footer}>{cols}</footer>;
 }

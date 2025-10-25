@@ -7,8 +7,10 @@ import { AuthenticationForm } from '../screens/Login/AuthenticationForm';
 import { Profile } from '../screens/Profile/Profile';
 import UploadTrackFile from '../screens/UploadTrackFile/UploadTrackFile';
 import { HeaderApp } from './header/HeaderApp';
-import { PrivateRoute } from './PrivateRoute';
 import { ModalsProvider } from '@mantine/modals';
+import { ListaAreaAtuacao } from '../screens/AreaAtuacao/List/ListAreaAtuacao';
+import EditAreaAtuacao from '../screens/AreaAtuacao/Edit/EditAreaAtuacao';
+import PrivateRoute from './PrivateRoute';
 
 const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
@@ -52,23 +54,69 @@ const InnerRouter = () => {
         },
         {
           path: '/profileForm',
-          element: <PrivateRoute component={ProfileScreen} />,
+          element: (
+            <PrivateRoute>
+              <ProfileScreen />
+            </PrivateRoute>
+          ),
         },
         {
           path: '/profile',
-          element: <PrivateRoute component={Profile} />,
+          element: (
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          ),
         },
         {
           path: '/payment',
-          element: <PrivateRoute component={PaymentScreen} />,
+          element: (
+            <PrivateRoute>
+              <PaymentScreen />
+            </PrivateRoute>
+          ),
         },
         {
           path: '/news',
-          element: <PrivateRoute component={UnderConstruction} />,
+          element: (
+            <PrivateRoute>
+              <UnderConstruction />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/areas_atuacao',
+          element: (
+            <PrivateRoute>
+              <ListaAreaAtuacao />
+            </PrivateRoute>
+          ),
+        },
+
+        {
+          path: '/areas_atuacao/edit/:paramId',
+          element: (
+            <PrivateRoute>
+              <EditAreaAtuacao />
+            </PrivateRoute>
+          ),
+        },
+
+        {
+          path: '/areas_atuacao/new',
+          element: (
+            <PrivateRoute>
+              <EditAreaAtuacao />
+            </PrivateRoute>
+          ),
         },
         {
           path: '/uploadTrackFile',
-          element: <PrivateRoute component={UploadTrackFile} />,
+          element: (
+            <PrivateRoute>
+              <UploadTrackFile />
+            </PrivateRoute>
+          ),
         },
         {
           path: '/acess_denied',

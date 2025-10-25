@@ -1,4 +1,4 @@
-import { useToggle, upperFirst } from '@mantine/hooks';
+import { useToggle } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import {
@@ -9,22 +9,19 @@ import {
   Group,
   PaperProps,
   Button,
-  Image,
   Checkbox,
   Anchor,
   Stack,
   Container,
   Center,
   Title,
-  rem,
 } from '@mantine/core';
 import { GoogleButton } from './GoogleButton';
 import { CreateUser, TranslateAuthError, signInWithEmailPassword } from '~/lib/authServices';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { useUserData } from '~/components/contexts/UserDataContext';
 import { FooterApp } from '~/components/router/footer/FooterApp';
-import companyLogo from '../../../assets/images/app-logo-circular.svg';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, toggle] = useToggle(['login', 'register']);
@@ -107,9 +104,6 @@ export function AuthenticationForm(props: PaperProps) {
     <>
       <Container>
         <Paper radius="md" p="xl" withBorder {...props}>
-          <Center m="xl">
-            <img src={companyLogo} id="companyLogo" style={{ width: rem(80), height: rem(80) }} alt="company logo" />
-          </Center>
           <Center>
             <Text size="md" fw={500}>
               {type == 'register' ? 'Registre-se' : 'Faça seu login'} com

@@ -1,5 +1,20 @@
 import { Carousel } from '@mantine/carousel';
-import { Container, Paper, Title, Text, Button, Image, List, LoadingOverlay } from '@mantine/core';
+import {
+  Container,
+  Paper,
+  Title,
+  Text,
+  Button,
+  Image,
+  List,
+  LoadingOverlay,
+  Grid,
+  Card,
+  useMantineTheme,
+  Group,
+  Badge,
+  SimpleGrid,
+} from '@mantine/core';
 import classes from './Home.module.css';
 import { useAuthState } from '~/components/contexts/UserContext';
 import { useEffect, useRef, useState } from 'react';
@@ -11,18 +26,8 @@ import Autoplay from 'embla-carousel-autoplay';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingMain } from '~/components/shared/Loading';
 import { FooterApp } from '~/components/router/footer/FooterApp';
-
-function Card({ imagem }: LinksInicio) {
-  return (
-    <Paper
-      shadow="md"
-      p="xl"
-      radius="md"
-      style={{ backgroundImage: `url(${imagem})` }}
-      className={classes.card}
-    ></Paper>
-  );
-}
+import { AreaAtuacao, ListAreaAtuacao } from '~/lib/repositories/areasAtuacaoRepository';
+import { AreaAtuacaoSection } from './AreaAtuacao/AreaAtuacao';
 
 export default function Home() {
   const { state } = useAuthState();
@@ -40,11 +45,24 @@ export default function Home() {
     homeConfig();
   }, []);
 
+  function CardLink({ imagem }: LinksInicio) {
+    return (
+      <Paper
+        shadow="md"
+        p="xl"
+        radius="md"
+        style={{ backgroundImage: `url(${imagem})` }}
+        className={classes.card}
+      ></Paper>
+    );
+  }
+
   const slides = linksInicio.map((item, index) => (
     <Carousel.Slide key={item.id}>
-      <Card {...item} />
+      <CardLink {...item} />
     </Carousel.Slide>
   ));
+  const theme = useMantineTheme();
 
   const autoplay = useRef(Autoplay({ delay: 2000 }));
   const [visible, { toggle }] = useDisclosure(true);
@@ -63,9 +81,20 @@ export default function Home() {
             Qualidade no atendimento, de forma ágil e humanizada.
           </Text>
 
-          <Button variant="gradient" size="xl" radius="xl" className={classes.control} component={Link} to="/login">
-            Entrar
+          <Button
+            variant="gradient"
+            size="xl"
+            radius="xl"
+            className={classes.control}
+            component="a"
+            href="https://api.whatsapp.com/send?phone=5531980210828&amp;text=Ol%C3%A1,%20como%20vai?%20Vim%20do%20seu%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%20de%20advocacia"
+          >
+            Clique aqui e fale com um advogado especializado
           </Button>
+          <br />
+          <Text className={classes.description} size="xl" mt="xl">
+            Atendimento 100% online no WhatsApp, em todo Brasil.
+          </Text>
         </Container>
       </div>
       <Carousel
@@ -77,7 +106,7 @@ export default function Home() {
       >
         {slides}
       </Carousel>
-
+      <AreaAtuacaoSection />
       <FooterApp />
     </>
   );

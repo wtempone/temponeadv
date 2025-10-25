@@ -21,7 +21,6 @@ import { useNavigate } from 'react-router';
 import { LoadingMain } from '~/components/shared/Loading';
 import { GetUserData, GliderSettings } from '~/lib/repositories/userDataRepository';
 import { AddTrackLog, GetTrackLog, TrackLog } from '~/lib/repositories/userTrackLogRepository';
-import Customize from '../../shared/Customize/Customize';
 import NewTracklog from './NewTracklog';
 import { useUserData } from '~/components/contexts/UserDataContext';
 
@@ -172,14 +171,7 @@ export default function UploadTrackFile(props: PaperProps) {
         closeOnClickOutside={false}
         closeOnEscape={false}
         centered
-      >
-        <Customize
-          gliderSettings={userData!.gliderSettings!}
-          close={closeCustomize}
-          confirm={handleCustomizeConfirm}
-          editPerfil={false}
-        />
-      </Modal>
+      ></Modal>
 
       <Modal
         fullScreen={true}

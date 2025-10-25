@@ -9,12 +9,13 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
+    orderBy,
 } from "firebase/firestore";
 import { useFirestore } from "./firebase";
 
 export interface IRepository<T> {
     get(id: string): Promise<T>;
-    list(): Promise<Array<T>>;
+    list(order: string): Promise<Array<T>>;
     add(item: T): Promise<T>;
     update(id: string, item: T): Promise<T>;
     delete(id: string): void;
@@ -41,8 +42,8 @@ export abstract class Repository<T> implements IRepository<T> {
         return undefined as T;
     }
 
-    list = async (): Promise<Array<T>> => {
-        const q = query(this.collection);
+    list = async (order:string): Promise<Array<T>> => {
+        const q = query(this.collection, orderBy(order));
         const snapshot = await getDocs(q);
         const fetchedData: Array<T> = [];
         snapshot.forEach((doc) => {
@@ -57,6 +58,7 @@ export abstract class Repository<T> implements IRepository<T> {
     }
 
     update = async (id: string, item: T): Promise<T> => {
+        debugger;
         const docRef = doc(this.firestore, this.collectionName, id)
         const task = updateDoc(docRef, { item })
         return task as T;

@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useSignIn, useSignOut } from '~/components/contexts/UserContext';
 import { Router } from '~/components/router/Router';
-import { setupFirebase } from '~/lib/firebase';
 import classes from './Main.module.css';
 import { Button, Container, SimpleGrid, Title, Image, Text, Code } from '@mantine/core';
 
@@ -13,10 +12,6 @@ function Main() {
   const { signOut } = useSignOut();
 
   useEffect(() => {
-    setupFirebase();
-    Ion.defaultAccessToken = import.meta.env.VITE_ION_ACCESS_TOKEN;
-    //GoogleMaps.defaultApiKey = import.meta.env.VITE_GOOGLEMAPS_APIKEY;
-
     const auth = getAuth();
 
     onAuthStateChanged(auth, async (user) => {
