@@ -74,7 +74,6 @@ export const App = () => {
           orange: generateColors('#a4802a'),
         },
         primaryColor: 'orange',
-        defaultRadius: 0,
         variantColorResolver: variantColorResolver,
         components: {
           Loader: Loader.extend({

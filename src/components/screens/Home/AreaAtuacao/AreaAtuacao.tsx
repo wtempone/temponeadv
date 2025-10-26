@@ -3,13 +3,10 @@ import { Badge, Card, Container, Group, SimpleGrid, Text, Title, useMantineTheme
 import classes from './AreaAtuacao.module.css';
 import { useEffect, useState } from 'react';
 import { AreaAtuacao, ListAreaAtuacao } from '~/lib/repositories/areasAtuacaoRepository';
-import { useFirestore } from '~/lib/firebase';
 import { GiInjustice } from 'react-icons/gi';
 
 export function AreaAtuacaoSection() {
-  const theme = useMantineTheme();
   const [areaAtuacao, setAreaAtuacao] = useState<Array<AreaAtuacao>>([]);
-  const firestore = useFirestore();
   useEffect(() => {
     async function homeConfig() {
       await ListAreaAtuacao().then((areas) => {
@@ -32,7 +29,7 @@ export function AreaAtuacaoSection() {
   ));
 
   return (
-    <Container size="lg" py="xl">
+    <>
       <Title order={2} className={classes.title} ta="center" mt="sm">
         Áreas de Atuação
       </Title>
@@ -41,9 +38,9 @@ export function AreaAtuacaoSection() {
         Conheça as principais áreas em que atuamos para oferecer soluções jurídicas.
       </Text>
 
-      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt={50}>
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" mt={50}>
         {areas}
       </SimpleGrid>
-    </Container>
+    </>
   );
 }

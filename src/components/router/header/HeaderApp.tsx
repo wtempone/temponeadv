@@ -70,6 +70,18 @@ export function HeaderApp() {
       description: 'Atualize as áreas de atuação',
       link: '/areas_atuacao',
     },
+    {
+      icon: IconBook,
+      title: 'Equipe de Funcionários',
+      description: 'Gerencie os funcionários do escritório',
+      link: '/funcionarios',
+    },
+    {
+      icon: IconBook,
+      title: 'Perguntas Frequentes',
+      description: 'Gerencie as perguntas frequentes',
+      link: '/perguntas_frequentes',
+    },
 
     // {
     //   icon: IconCoin,

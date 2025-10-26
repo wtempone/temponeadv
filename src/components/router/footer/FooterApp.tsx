@@ -1,4 +1,4 @@
-import { Text, Container, ActionIcon, Group, rem, Grid, Paper } from '@mantine/core';
+import { Text, Container, ActionIcon, Group, rem, Grid, Paper, Center } from '@mantine/core';
 import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram } from '@tabler/icons-react';
 import companyLogo from '../../../assets/images/app-logo-circular.svg';
 import classes from './FooterApp.module.css';
@@ -61,5 +61,9 @@ export function FooterApp() {
     </Paper>
   ));
 
-  return <footer className={classes.footer}>{cols}</footer>;
+  return (
+    <footer className={classes.footer}>
+      <Center>Copyright 2025. Todos os Direitos Reservados. Tempone Advocacia.</Center>
+    </footer>
+  );
 }

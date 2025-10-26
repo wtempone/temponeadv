@@ -28,6 +28,10 @@ import { LoadingMain } from '~/components/shared/Loading';
 import { FooterApp } from '~/components/router/footer/FooterApp';
 import { AreaAtuacao, ListAreaAtuacao } from '~/lib/repositories/areasAtuacaoRepository';
 import { AreaAtuacaoSection } from './AreaAtuacao/AreaAtuacao';
+import { OwnerCard } from './OwnerCard/OwnerCard';
+import ButtonWhatsapp from './ButtonWhatsapp/ButtonWhatsapp';
+import { EquipeCard } from './EquipeCard/EquipeCard';
+import { PerguntasFrequentesSection } from './PerguntasFrequentes/PerguntasFrequentes.module';
 
 export default function Home() {
   const { state } = useAuthState();
@@ -80,17 +84,7 @@ export default function Home() {
           <Text className={classes.description} size="xl" mt="xl">
             Qualidade no atendimento, de forma ágil e humanizada.
           </Text>
-
-          <Button
-            variant="gradient"
-            size="xl"
-            radius="xl"
-            className={classes.control}
-            component="a"
-            href="https://api.whatsapp.com/send?phone=5531980210828&amp;text=Ol%C3%A1,%20como%20vai?%20Vim%20do%20seu%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20seus%20servi%C3%A7os%20de%20advocacia"
-          >
-            Clique aqui e fale com um advogado especializado
-          </Button>
+          <ButtonWhatsapp />
           <br />
           <Text className={classes.description} size="xl" mt="xl">
             Atendimento 100% online no WhatsApp, em todo Brasil.
@@ -107,6 +101,9 @@ export default function Home() {
         {slides}
       </Carousel>
       <AreaAtuacaoSection />
+      <OwnerCard />
+      <EquipeCard />
+      <PerguntasFrequentesSection />
       <FooterApp />
     </>
   );

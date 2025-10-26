@@ -9,8 +9,10 @@ import UploadTrackFile from '../screens/UploadTrackFile/UploadTrackFile';
 import { HeaderApp } from './header/HeaderApp';
 import { ModalsProvider } from '@mantine/modals';
 import { ListaAreaAtuacao } from '../screens/AreaAtuacao/List/ListAreaAtuacao';
-import EditAreaAtuacao from '../screens/AreaAtuacao/Edit/EditAreaAtuacao';
 import PrivateRoute from './PrivateRoute';
+import { ListaFuncionarios } from '../screens/Funcionarios/List/ListFuncionarios';
+import { ListPerguntasFrequentes } from '~/lib/repositories/perguntasRepository';
+import { ListaPerguntasFrequentes } from '../screens/PerguntasFrequentes/List/PerguntasFrequentes';
 
 const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
@@ -92,21 +94,19 @@ const InnerRouter = () => {
             </PrivateRoute>
           ),
         },
-
         {
-          path: '/areas_atuacao/edit/:paramId',
+          path: '/funcionarios',
           element: (
             <PrivateRoute>
-              <EditAreaAtuacao />
+              <ListaFuncionarios />
             </PrivateRoute>
           ),
         },
-
         {
-          path: '/areas_atuacao/new',
+          path: '/perguntas_frequentes',
           element: (
             <PrivateRoute>
-              <EditAreaAtuacao />
+              <ListaPerguntasFrequentes />
             </PrivateRoute>
           ),
         },
