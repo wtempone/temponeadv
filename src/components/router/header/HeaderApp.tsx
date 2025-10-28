@@ -54,9 +54,9 @@ export function HeaderApp() {
   const areaLogada = [
     {
       icon: IconExternalLink,
-      title: 'Envie seu documento',
-      description: 'Upload de arquivos para análise',
-      link: '/uploadTrackFile',
+      title: 'Envie um arquivo de promoção',
+      description: 'Upload de arquivos de promoções do Diário Oficial',
+      link: '/upload_promocao',
     },
     {
       icon: IconBook,

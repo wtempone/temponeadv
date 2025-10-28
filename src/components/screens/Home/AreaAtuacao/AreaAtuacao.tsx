@@ -1,5 +1,5 @@
 import { IconCookie, IconGauge, IconUser } from '@tabler/icons-react';
-import { Badge, Card, Container, Group, SimpleGrid, Text, Title, useMantineTheme } from '@mantine/core';
+import { Badge, Button, Card, Container, Group, SimpleGrid, Text, Title, useMantineTheme } from '@mantine/core';
 import classes from './AreaAtuacao.module.css';
 import { useEffect, useState } from 'react';
 import { AreaAtuacao, ListAreaAtuacao } from '~/lib/repositories/areasAtuacaoRepository';
@@ -18,7 +18,16 @@ export function AreaAtuacaoSection() {
 
   const areas = areaAtuacao.map((area) => (
     <Card key={area.title} shadow="md" radius="md" className={classes.card} padding="xl">
-      <GiInjustice size={50} className={classes.icon} />
+      <Group m={0} p={0} justify="space-between" h="100%">
+        <GiInjustice size={50} className={classes.icon} />
+        <div>
+          {area.link && (
+            <Button component="a" href={area.link} variant="primary" size="xs">
+              {area.titleLink!}
+            </Button>
+          )}
+        </div>
+      </Group>
       <Text fz="lg" fw={500} className={classes.cardTitle} mt="md">
         {area.title}
       </Text>

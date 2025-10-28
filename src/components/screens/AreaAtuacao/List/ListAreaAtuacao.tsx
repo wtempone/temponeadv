@@ -24,6 +24,21 @@ export function ListaAreaAtuacao() {
       { accessorKey: 'ordem', header: 'Ordem' },
       { accessorKey: 'title', header: 'Título' },
       { accessorKey: 'description', header: 'Descrição' },
+      {
+        accessorKey: 'link',
+        header: 'Link',
+        Cell: ({ row }) => {
+          const url = row.original.link;
+          const label = row.original.titleLink || url;
+          return url ? (
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {label}
+            </a>
+          ) : (
+            '-'
+          );
+        },
+      },
     ],
     [],
   );
@@ -63,17 +78,16 @@ export function ListaAreaAtuacao() {
   };
 
   const handleCreate = async (values: AreaAtuacao) => {
-    AddAreaAtuacao(values).then(async () => {
-      notifications.show({
-        title: 'Sucesso',
-        message: 'Área de criada com sucesso!',
-        color: 'green',
-      });
-      const updated = await ListAreaAtuacao();
-      setData(updated);
-      setEditingRow(null);
-      setModalOpened(false);
+    await AddAreaAtuacao(values);
+    notifications.show({
+      title: 'Sucesso',
+      message: 'Área criada com sucesso!',
+      color: 'green',
     });
+    const updated = await ListAreaAtuacao();
+    setData(updated);
+    setEditingRow(null);
+    setModalOpened(false);
   };
 
   const handleUpdate = async (values: AreaAtuacao) => {
@@ -82,20 +96,20 @@ export function ListaAreaAtuacao() {
         ordem: values.ordem,
         title: values.title,
         description: values.description,
+        link: values.link,
+        titleLink: values.titleLink,
       };
 
-      UpdateAreaAtuacao(editingRow?.id, updatedArea).then(async (record) => {
-        notifications.show({
-          title: 'Sucesso',
-          message: 'Área de atuação atualizada com sucesso!',
-          color: 'green',
-        });
-        console.log('updated record:', record);
-        const updated = await ListAreaAtuacao();
-        setData(updated);
-        setEditingRow(null);
-        setModalOpened(false);
+      await UpdateAreaAtuacao(editingRow.id, updatedArea);
+      notifications.show({
+        title: 'Sucesso',
+        message: 'Área de atuação atualizada com sucesso!',
+        color: 'green',
       });
+      const updated = await ListAreaAtuacao();
+      setData(updated);
+      setEditingRow(null);
+      setModalOpened(false);
     }
   };
 
@@ -111,14 +125,14 @@ export function ListaAreaAtuacao() {
       </Button>
 
       <FormAreaAtuacao
-        key={editingRow?.id ?? 'new'} // ✅ força recriação do formulário
+        key={editingRow?.id ?? 'new'}
         opened={modalOpened}
         onClose={() => {
           setModalOpened(false);
           setEditingRow(null);
         }}
         onSubmit={editingRow ? handleUpdate : handleCreate}
-        initialValues={editingRow ?? { ordem: 0, title: '', description: '' }}
+        initialValues={editingRow ?? { ordem: 0, title: '', description: '', link: '', titleLink: '' }}
         existingData={data}
       />
 

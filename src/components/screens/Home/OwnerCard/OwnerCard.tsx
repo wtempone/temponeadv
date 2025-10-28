@@ -29,7 +29,11 @@ export function OwnerCard() {
 
       <Card key="card1" shadow="md" radius="md" className={classes.card} padding="xl">
         <Group grow wrap="nowrap">
-          <Image className={classes.image_owner} src="src\assets\images\Capa-Tempone5.png" alt="Advogado Online" />
+          <Image
+            className={classes.image_owner}
+            src="https://firebasestorage.googleapis.com/v0/b/temponeadv.firebasestorage.app/o/initial_links%2FCapa-Tempone5.png?alt=media&token=3c5589ea-e088-4b09-a51f-f92f3eb8038b"
+            alt="Advogado Online"
+          />
           <Stack className={classes.content_owner}>
             <Title order={2} className={classes.title_owner} ta="center" m="md">
               Dr. Bernardo Tempone Gomes Paizante

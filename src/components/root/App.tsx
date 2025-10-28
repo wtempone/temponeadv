@@ -72,6 +72,7 @@ export const App = () => {
         },
         colors: {
           orange: generateColors('#a4802a'),
+          green: generateColors('#004040'),
         },
         primaryColor: 'orange',
         variantColorResolver: variantColorResolver,

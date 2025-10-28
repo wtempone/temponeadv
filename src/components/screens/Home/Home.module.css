@@ -7,11 +7,6 @@
   background-size: cover;
   background-position: center;
 }
-.card_owner {
-  border: 1px solid light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
-  background-color: #004040;
-  color: aliceblue;
-}
 
 .title {
   font-family:

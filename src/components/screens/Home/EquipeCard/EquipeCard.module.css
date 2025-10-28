@@ -1,19 +1,19 @@
 .base {
-  background-color: #004040;
+  background-color: var(--mantine-color-green-9);
 }
 .title {
   margin-top: var(--mantine-spacing-xl);
   margin-bottom: var(--mantine-spacing-xl);
   font-size: 34px;
   font-weight: 500;
-  color: #a4802a;
+  color: var(--mantine-color-orange-9);
   @media (max-width: $mantine-breakpoint-sm) {
     font-size: 24px;
   }
   &::after {
     content: '';
     display: block;
-    background-color: #a4802a;
+    background-color: var(--mantine-color-orange-9);
     width: 145px;
     height: 2px;
     margin-top: var(--mantine-spacing-sm);
@@ -22,10 +22,10 @@
   }
 }
 .title_owner {
-  color: #a4802a;
+  color: var(--mantine-color-orange-9);
 }
 .icon {
-  color: #a4802a;
+  color: var(--mantine-color-orange-9);
 }
 
 .image_owner {
@@ -41,7 +41,7 @@
   &::after {
     content: '';
     display: block;
-    background-color: #a4802a;
+    background-color: var(--mantine-color-orange-9);
     width: 145px;
     height: 2px;
     margin-top: var(--mantine-spacing-sm);
@@ -61,7 +61,7 @@
   &::after {
     content: '';
     display: block;
-    background-color: #a4802a;
+    background-color: var(--mantine-color-orange-9);
     width: 45px;
     height: 2px;
     margin-top: var(--mantine-spacing-sm);

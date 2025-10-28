@@ -13,6 +13,8 @@ import PrivateRoute from './PrivateRoute';
 import { ListaFuncionarios } from '../screens/Funcionarios/List/ListFuncionarios';
 import { ListPerguntasFrequentes } from '~/lib/repositories/perguntasRepository';
 import { ListaPerguntasFrequentes } from '../screens/PerguntasFrequentes/List/PerguntasFrequentes';
+import { ConsultaPromocao } from '../screens/ConsultaPromocao/ConsultaPromocao';
+import { UploadPromocoes } from '../screens/UploadPromocoes/UploadPromocoes';
 
 const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
@@ -103,6 +105,14 @@ const InnerRouter = () => {
           ),
         },
         {
+          path: '/consulta_propmocao',
+          element: (
+            <PrivateRoute>
+              <ConsultaPromocao />
+            </PrivateRoute>
+          ),
+        },
+        {
           path: '/perguntas_frequentes',
           element: (
             <PrivateRoute>
@@ -111,10 +121,10 @@ const InnerRouter = () => {
           ),
         },
         {
-          path: '/uploadTrackFile',
+          path: '/upload_promocao',
           element: (
             <PrivateRoute>
-              <UploadTrackFile />
+              <UploadPromocoes />
             </PrivateRoute>
           ),
         },

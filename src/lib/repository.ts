@@ -11,6 +11,8 @@ import {
   deleteDoc,
   orderBy,
   setDoc,
+  where,
+  WhereFilterOp,
 } from 'firebase/firestore';
 import { useFirestore } from './firebase';
 
@@ -20,6 +22,7 @@ export interface IRepository<T> {
   add(item: T): Promise<T>;
   update(id: string, item: T): Promise<T>;
   delete(id: string): void;
+  query(field: string, operator: WhereFilterOp, value: any): Promise<Array<T>>;
 }
 
 export abstract class Repository<T> implements IRepository<T> {
@@ -62,8 +65,19 @@ export abstract class Repository<T> implements IRepository<T> {
     const task = setDoc(docRef, item as DocumentData);
     return task as T;
   };
+
   delete = async (id: string) => {
     const docRef = doc(this.firestore, this.collectionName, id);
     return deleteDoc(docRef);
+  };
+
+  query = async (field: string, operator: WhereFilterOp, value: any): Promise<Array<T>> => {
+    const q = query(this.collection, where(field, operator, value));
+    const snapshot = await getDocs(q);
+    const results: Array<T> = [];
+    snapshot.forEach((docSnap) => {
+      results.push({ id: docSnap.id, ...docSnap.data() } as T);
+    });
+    return results;
   };
 }

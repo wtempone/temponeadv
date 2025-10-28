@@ -1,4 +1,3 @@
-// components/FormAreaAtuacao.tsx
 import { Modal, TextInput, Button } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { AreaAtuacao } from '~/lib/repositories/areasAtuacaoRepository';
@@ -15,7 +14,7 @@ export function FormAreaAtuacao({
   opened,
   onClose,
   onSubmit,
-  initialValues = { ordem: 0, title: '', description: '' },
+  initialValues = { ordem: 0, title: '', description: '', link: '', titleLink: '' },
   existingData,
 }: FormAreaAtuacaoProps) {
   const form = useForm<AreaAtuacao>({
@@ -29,6 +28,10 @@ export function FormAreaAtuacao({
       },
       title: (value) => (!value || value.trim().length < 3 ? 'Título deve ter no mínimo 3 letras' : null),
       description: (value) => (!value || value.trim().length < 3 ? 'Descrição deve ter no mínimo 3 letras' : null),
+      titleLink: (value, values) =>
+        values.link && (!value || value.trim().length < 3)
+          ? 'Título do link é obrigatório quando o link está preenchido'
+          : null,
     },
   });
 
@@ -38,6 +41,8 @@ export function FormAreaAtuacao({
         <TextInput label="Ordem" type="number" {...form.getInputProps('ordem')} mb="sm" />
         <TextInput label="Título" {...form.getInputProps('title')} mb="sm" />
         <TextInput label="Descrição" {...form.getInputProps('description')} mb="sm" />
+        <TextInput label="Link (opcional)" {...form.getInputProps('link')} mb="sm" />
+        <TextInput label="Título do Link (opcional)" {...form.getInputProps('titleLink')} mb="sm" />
         <Button type="submit">Salvar</Button>
       </form>
     </Modal>
