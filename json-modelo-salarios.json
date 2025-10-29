@@ -1,0 +1,142 @@
+[
+  {
+    "descricao": "2023 - Tabela Salarial Professores e Servidores Públicos",
+    "dataInicial": "2023-01-01",
+    "dataFinal": "2023-12-31",
+    "cargaHorariaSemanal": [
+      {
+        "descricao": "40 horas",
+        "horasPorSemana": 40,
+        "carreira": [
+          {
+            "nome": "Professor Educação Básica",
+            "sigla": "PEB",
+            "niveis": [
+              {
+                "nivel": 1,
+                "descricao": "I",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 2500
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 2700
+                  }
+                ]
+              },
+              {
+                "nivel": 2,
+                "descricao": "II",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 3000
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 3200
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "nome": "Servidor Administrativo",
+            "sigla": "SA",
+            "niveis": [
+              {
+                "nivel": 1,
+                "descricao": "I",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 2000
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 2200
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "descricao": "20 horas",
+        "horasPorSemana": 20,
+        "carreira": [
+          {
+            "nome": "Professor Meio Período",
+            "sigla": "PMP",
+            "niveis": [
+              {
+                "nivel": 1,
+                "descricao": "I",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 1500
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 1700
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "descricao": "2024 - Tabela Salarial Professores e Servidores Públicos",
+    "dataInicial": "2024-01-01",
+    "dataFinal": "2024-12-31",
+    "cargaHorariaSemanal": [
+      {
+        "descricao": "40 horas",
+        "horasPorSemana": 40,
+        "carreira": [
+          {
+            "nome": "Professor Educação Básica",
+            "sigla": "PEB",
+            "niveis": [
+              {
+                "nivel": 1,
+                "descricao": "I",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 2600
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 2800
+                  }
+                ]
+              },
+              {
+                "nivel": 2,
+                "descricao": "II",
+                "graus": [
+                  {
+                    "grau": "A",
+                    "salario": 3100
+                  },
+                  {
+                    "grau": "B",
+                    "salario": 3300
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

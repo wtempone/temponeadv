@@ -15,6 +15,7 @@ import { ListPerguntasFrequentes } from '~/lib/repositories/perguntasRepository'
 import { ListaPerguntasFrequentes } from '../screens/PerguntasFrequentes/List/PerguntasFrequentes';
 import { ConsultaPromocao } from '../screens/ConsultaPromocao/ConsultaPromocao';
 import { UploadPromocoes } from '../screens/UploadPromocoes/UploadPromocoes';
+import { TabelaSalarialViewer } from '../screens/TabelaSalarialViewer/TabelaSalarialViewer';
 
 const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
@@ -125,6 +126,14 @@ const InnerRouter = () => {
           element: (
             <PrivateRoute>
               <UploadPromocoes />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/config_salarios',
+          element: (
+            <PrivateRoute>
+              <TabelaSalarialViewer />
             </PrivateRoute>
           ),
         },

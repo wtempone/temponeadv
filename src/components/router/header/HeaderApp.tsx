@@ -19,7 +19,18 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconBook, IconChevronDown, IconCoin, IconExternalLink } from '@tabler/icons-react';
+import {
+  IconBook,
+  IconChevronDown,
+  IconCoin,
+  IconExternalLink,
+  IconHelpCircle,
+  IconMapPin,
+  IconSettings,
+  IconUpload,
+  IconUserCog,
+  IconUsersGroup,
+} from '@tabler/icons-react';
 import { BiNews, BiTransfer } from 'react-icons/bi';
 import companyLogo from '../../../assets/images/Capa-Tempone2-1024x243.png';
 
@@ -53,54 +64,41 @@ export function HeaderApp() {
 
   const areaLogada = [
     {
-      icon: IconExternalLink,
+      icon: IconUpload,
       title: 'Envie um arquivo de promoção',
       description: 'Upload de arquivos de promoções do Diário Oficial',
       link: '/upload_promocao',
     },
     {
-      icon: IconBook,
+      icon: IconUserCog,
       title: 'Editar Perfil',
       description: 'Atualize os dados do seu perfil',
       link: '/profile',
     },
     {
-      icon: IconBook,
-      title: 'Areas de Atuação',
+      icon: IconSettings,
+      title: 'Configuração de Salários',
+      description: 'Gerencie as tabelas salariais',
+      link: '/config_salarios',
+    },
+    {
+      icon: IconMapPin,
+      title: 'Áreas de Atuação',
       description: 'Atualize as áreas de atuação',
       link: '/areas_atuacao',
     },
     {
-      icon: IconBook,
+      icon: IconUsersGroup,
       title: 'Equipe de Funcionários',
       description: 'Gerencie os funcionários do escritório',
       link: '/funcionarios',
     },
     {
-      icon: IconBook,
+      icon: IconHelpCircle,
       title: 'Perguntas Frequentes',
       description: 'Gerencie as perguntas frequentes',
       link: '/perguntas_frequentes',
     },
-
-    // {
-    //   icon: IconCoin,
-    //   title: 'Pagamento',
-    //   description: 'Verifique seus pagamentos de anuidades e inscrições',
-    //   link: '/payment'
-    // },
-    // {
-    //   icon: BiTransfer,
-    //   title: 'Sincronização',
-    //   description: 'Configure seus dados de sincronização com outros parceiros',
-    //   link: '/sincronize'
-    // },
-    // {
-    //   icon: BiNews,
-    //   title: 'Noticias',
-    //   description: 'Cadastre novas notícias',
-    //   link: '/news'
-    // }
   ];
 
   const links = areaLogada.map((item) => (
@@ -178,8 +176,8 @@ export function HeaderApp() {
             <Text className={classes.link} component={Link} variant="link" to="/">
               Quem Somos
             </Text>
-            <Text className={classes.link} component={Link} variant="link" to="/news">
-              Notícias
+            <Text className={classes.link} component={Link} variant="link" to="/consulta_propmocao">
+              Consulta promoções
             </Text>
             {isAuthenticated && (
               <HoverCard position="bottom" radius="md" shadow="md" withinPortal>
@@ -259,8 +257,8 @@ export function HeaderApp() {
           <Text className={classes.link} onClick={closeDrawer} component={Link} variant="link" to="/">
             Quem Somos
           </Text>
-          <Text className={classes.link} onClick={closeDrawer} component={Link} variant="link" to="/news">
-            Notícias
+          <Text className={classes.link} onClick={closeDrawer} component={Link} variant="link" to="/consulta_propmocao">
+            Consulta promoções
           </Text>
           {isAuthenticated && (
             <>
