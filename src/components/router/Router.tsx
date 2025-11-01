@@ -16,6 +16,7 @@ import { ListaPerguntasFrequentes } from '../screens/PerguntasFrequentes/List/Pe
 import { ConsultaPromocao } from '../screens/ConsultaPromocao/ConsultaPromocao';
 import { UploadPromocoes } from '../screens/UploadPromocoes/UploadPromocoes';
 import { TabelaSalarialViewer } from '../screens/TabelaSalarialViewer/TabelaSalarialViewer';
+import { PromocaoDOList } from '../screens/PromocaoDO/PromocaoDOList';
 
 const Loading = () => <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />;
 
@@ -107,11 +108,7 @@ const InnerRouter = () => {
         },
         {
           path: '/consulta_propmocao',
-          element: (
-            <PrivateRoute>
-              <ConsultaPromocao />
-            </PrivateRoute>
-          ),
+          element: <ConsultaPromocao />,
         },
         {
           path: '/perguntas_frequentes',
@@ -134,6 +131,14 @@ const InnerRouter = () => {
           element: (
             <PrivateRoute>
               <TabelaSalarialViewer />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/lista_promocoes',
+          element: (
+            <PrivateRoute>
+              <PromocaoDOList />
             </PrivateRoute>
           ),
         },

@@ -1,4 +1,28 @@
 {
-  "indexes": [],
-  "fieldOverrides": []
+  "indexes": [
+    {
+      "collectionGroup": "promocoes_diario_oficial",
+      "fields": [
+        { "fieldPath": "masp", "order": "ASCENDING" },
+        { "fieldPath": "publicacao", "order": "ASCENDING" },
+        { "fieldPath": "vigencia", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "promocoes_diario_oficial",
+      "fieldPath": "nome",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" },
+        { "order": "DESCENDING", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "promocoes_diario_oficial",
+      "fieldPath": "masp",
+      "indexes": [{ "order": "DESCENDING", "queryScope": "COLLECTION" }]
+    }
+  ]
 }

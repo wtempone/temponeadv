@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Title, LoadingOverlay, Group } from '@mantine/core';
-import { IconChevronRight, IconCalendar } from '@tabler/icons-react';
+import { IconChevronRight, IconCalendar, IconTrash } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
@@ -7,12 +7,12 @@ import { TabelaSalarialRepository } from '~/lib/repositories/tabelaSalarialRepos
 import dayjs from 'dayjs';
 import { CarreirasTable } from './CarreirasTable';
 import classes from './TabelaSalarialViewer.module.css';
+import { modals } from '@mantine/modals';
 
 function parseDateLocal(dateLike: string | Date): Date | null {
-  if (!dateLike && dateLike !== 0) return null;
+  if (!dateLike) return null;
   if (dateLike instanceof Date) return new Date(dateLike.getFullYear(), dateLike.getMonth(), dateLike.getDate());
   const s = String(dateLike).trim();
-  // aceita formatos ISO simples "YYYY-MM-DD" ou "YYYY-MM-DDTHH:mm:ss..." - para o primeiro, cria Date local
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
   if (m) {
     const year = Number(m[1]);
@@ -20,7 +20,6 @@ function parseDateLocal(dateLike: string | Date): Date | null {
     const day = Number(m[3]);
     return new Date(year, month, day);
   }
-  // tentativa fallback: criar Date e normalizar para componente local (evita deslocamento de timezone)
   const d = new Date(s);
   if (isNaN(d.getTime())) return null;
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -47,7 +46,6 @@ export function TabelaSalarialViewer() {
       const parsed = JSON.parse(text);
 
       const repo = new TabelaSalarialRepository();
-      // criar vigência usando parseDateLocal para evitar shift de um dia
       const dataInicial = parseDateLocal(parsed.dataInicial);
       const dataFinal = parseDateLocal(parsed.dataFinal);
       if (!dataInicial || !dataFinal) throw new Error('Datas inválidas no arquivo de importação');
@@ -61,8 +59,6 @@ export function TabelaSalarialViewer() {
       const vigencia = (await repo.getVigencias()).find((v) => v.descricao === parsed.descricao);
       if (!vigencia) throw new Error('Erro ao localizar vigência criada');
 
-      // parsed.carreiras esperado conforme nova estrutura:
-      // { carreiras: [{ nome, sigla, cargaHorariaSemanal: [ { descricao, horasPorSemana, niveis: [...] } ] }] }
       for (const carreira of parsed.carreiras ?? []) {
         await repo.addCarreira(vigencia.id!, carreira);
         const carreiraDoc = (await repo.getCarreiras(vigencia.id!)).find(
@@ -99,6 +95,21 @@ export function TabelaSalarialViewer() {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  }
+
+  function confirmDeleteVigencia(id: string, descricao: string) {
+    modals.openConfirmModal({
+      title: 'Excluir vigência',
+      children: `Tem certeza que deseja excluir a vigência "${descricao}"? Essa ação não pode ser desfeita.`,
+      labels: { confirm: 'Excluir', cancel: 'Cancelar' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        const repo = new TabelaSalarialRepository();
+        await repo.deleteVigencia(id);
+        const updated = await repo.getVigencias();
+        setVigencias(updated);
+      },
+    });
   }
 
   return (
@@ -141,6 +152,19 @@ export function TabelaSalarialViewer() {
             accessor: 'dataFinal',
             textAlign: 'right',
             render: ({ dataFinal }: any) => dayjs(dataFinal).format('DD/MM/YYYY'),
+          },
+          {
+            accessor: 'delete',
+            textAlign: 'right',
+            width: 40,
+            render: ({ id, descricao }: any) => (
+              <IconTrash
+                style={{ cursor: 'pointer' }}
+                color="red"
+                size={18}
+                onClick={() => confirmDeleteVigencia(id, descricao)}
+              />
+            ),
           },
         ]}
         records={vigencias}

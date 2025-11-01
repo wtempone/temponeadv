@@ -1,4 +1,14 @@
-import { collection, getCountFromServer, query, where, orderBy, getDocs, Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  getCountFromServer,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  Timestamp,
+  limit,
+  startAt,
+} from 'firebase/firestore';
 import { useFirestore } from '../firebase';
 import { Repository } from '../repository';
 
@@ -18,9 +28,33 @@ export interface PromocaoDO {
 
 const collectionName = 'promocoes_diario_oficial';
 
-class PromocaoDORepository extends Repository<any> {
+export class PromocaoDORepository extends Repository<any> {
   constructor() {
     super(collectionName);
+  }
+
+  async listPaginated({
+    pageIndex,
+    pageSize,
+    sortBy,
+    sortDirection,
+    filter,
+  }: {
+    pageIndex: number;
+    pageSize: number;
+    sortBy: string;
+    sortDirection: 'asc' | 'desc';
+    filter: string;
+  }): Promise<{ items: (PromocaoDO & { id: string })[]; total: number }> {
+    const firestore = useFirestore();
+    const ref = collection(firestore, collectionName);
+    let q = query(ref, orderBy(sortBy, sortDirection), limit(pageSize), startAt(pageIndex * pageSize));
+    if (filter) {
+      q = query(q, where('nome', '>=', filter), where('nome', '<=', filter + '\uf8ff'));
+    }
+    const snapshot = await getDocs(q);
+    const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as (PromocaoDO & { id: string })[];
+    return { items, total: 1000 }; // total real deve vir de contagem separada
   }
 
   async findByMasp(masp: string): Promise<PromocaoDO[]> {

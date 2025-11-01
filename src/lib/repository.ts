@@ -50,7 +50,6 @@ export abstract class Repository<T> implements IRepository<T> {
     const fetchedData: Array<T> = [];
     snapshot.forEach((doc) => {
       fetchedData.push({ id: doc.id, ...doc.data() } as T);
-      console.log(doc.id, ' => ', doc.data());
     });
     return fetchedData;
   };

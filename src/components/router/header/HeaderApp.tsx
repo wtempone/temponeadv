@@ -42,6 +42,7 @@ import { LogOut } from '~/lib/authServices';
 import classes from './HeaderApp.module.css';
 import { useErrorBoundary } from 'react-error-boundary';
 import { FaRegPaperPlane } from 'react-icons/fa';
+import { MenuLogado } from '../MenuLogado/MenuLogado';
 
 export function HeaderApp() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
@@ -49,6 +50,24 @@ export function HeaderApp() {
   const navigate = useNavigate();
   const { state } = useAuthState();
   const { userData } = useUserData();
+  const [foto, setFoto] = useState<string | null>(null);
+  const [nome, setNome] = useState<string | null>(null);
+  const [isAuthenticated, setAutenticate] = useState<Boolean>(false);
+
+  useEffect(() => {
+    setAutenticate(false);
+    setFoto(null);
+    setNome(null);
+    if (state.state === 'SIGNED_IN') {
+      setAutenticate(true);
+      setFoto(state.currentUser.photoURL!);
+      setNome(state.currentUser.displayName!);
+    }
+    if (userData) {
+      setFoto(userData.photoURL!);
+      setNome(userData.nome);
+    }
+  }, [state, userData]);
 
   const theme = useMantineTheme();
 
@@ -58,75 +77,6 @@ export function HeaderApp() {
       navigate('/');
     });
   }
-  const [foto, setFoto] = useState<string | null>(null);
-  const [nome, setNome] = useState<string | null>(null);
-  const [isAuthenticated, setAutenticate] = useState<Boolean>(false);
-
-  const areaLogada = [
-    {
-      icon: IconUpload,
-      title: 'Envie um arquivo de promoção',
-      description: 'Upload de arquivos de promoções do Diário Oficial',
-      link: '/upload_promocao',
-    },
-    {
-      icon: IconUserCog,
-      title: 'Editar Perfil',
-      description: 'Atualize os dados do seu perfil',
-      link: '/profile',
-    },
-    {
-      icon: IconSettings,
-      title: 'Configuração de Salários',
-      description: 'Gerencie as tabelas salariais',
-      link: '/config_salarios',
-    },
-    {
-      icon: IconMapPin,
-      title: 'Áreas de Atuação',
-      description: 'Atualize as áreas de atuação',
-      link: '/areas_atuacao',
-    },
-    {
-      icon: IconUsersGroup,
-      title: 'Equipe de Funcionários',
-      description: 'Gerencie os funcionários do escritório',
-      link: '/funcionarios',
-    },
-    {
-      icon: IconHelpCircle,
-      title: 'Perguntas Frequentes',
-      description: 'Gerencie as perguntas frequentes',
-      link: '/perguntas_frequentes',
-    },
-  ];
-
-  const links = areaLogada.map((item) => (
-    <UnstyledButton
-      className={classes.subLink}
-      key={item.title}
-      component={Link}
-      variant="link"
-      to={item.link}
-      onClick={closeDrawer}
-    >
-      <Group align="flex-start" p="xs">
-        <Group wrap="nowrap" justify="initial">
-          <ThemeIcon size={34} variant="default" radius="md">
-            <item.icon style={{ width: rem(22), height: rem(22) }} color={theme.colors.orange[6]} />
-          </ThemeIcon>
-          <Stack gap={0}>
-            <Text size="sm" fw={500}>
-              {item.title}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {item.description}
-            </Text>
-          </Stack>
-        </Group>
-      </Group>
-    </UnstyledButton>
-  ));
 
   function useScrollDirection() {
     const [scrollDirection, setScrollDirection] = useState('');
@@ -151,21 +101,6 @@ export function HeaderApp() {
     return scrollDirection;
   }
   const scrollDirection = useScrollDirection();
-
-  useEffect(() => {
-    setAutenticate(false);
-    setFoto(null);
-    setNome(null);
-    if (state.state === 'SIGNED_IN') {
-      setAutenticate(true);
-      setFoto(state.currentUser.photoURL!);
-      setNome(state.currentUser.displayName!);
-    }
-    if (userData) {
-      setFoto(userData.photoURL!);
-      setNome(userData.nome);
-    }
-  }, [state, userData, scrollDirection]);
 
   return (
     <Box className={[classes.box_hide, scrollDirection === 'down' && classes.down].join(' ')}>
@@ -193,17 +128,7 @@ export function HeaderApp() {
                 </HoverCard.Target>
 
                 <HoverCard.Dropdown>
-                  <SimpleGrid cols={1} spacing={0} py="xs" mb="md">
-                    {links}
-                  </SimpleGrid>
-
-                  <div className={classes.dropdownFooter}>
-                    <Group justify="end">
-                      <Button variant="outline" onClick={logoff}>
-                        Sair
-                      </Button>
-                    </Group>
-                  </div>
+                  <MenuLogado />
                 </HoverCard.Dropdown>
               </HoverCard>
             )}
@@ -271,7 +196,7 @@ export function HeaderApp() {
                 </Center>
               </UnstyledButton>
               <Collapse in={linksOpened} ml="md" mt="md">
-                {links}
+                <MenuLogado />
               </Collapse>
             </>
           )}

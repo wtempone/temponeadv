@@ -13,11 +13,11 @@ export async function consultarSalario(
   const vigencia = vigencias.find((v) => data >= v.dataInicial && data <= v.dataFinal);
   if (!vigencia) return { erro: 'Vigência não encontrada para a data informada.' };
 
-  const cargas = await repo.getCargas(vigencia.id!);
+  const cargas = await repo.getCargas(vigencia.id!, siglaCarreira);
   const cargaHoraria = cargas.find((c) => c.horasPorSemana === carga);
   if (!cargaHoraria) return { erro: 'Carga horária não encontrada na vigência.' };
 
-  const carreiras = await repo.getCarreiras(vigencia.id!, cargaHoraria.id!);
+  const carreiras = await repo.getCarreiras(vigencia.id!);
   const carreira = carreiras.find((c) => c.sigla === siglaCarreira);
   if (!carreira) return { erro: 'Carreira não encontrada na carga horária.' };
 

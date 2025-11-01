@@ -84,7 +84,18 @@ export function TabelaResultadoPromocao({ precomputedMeses, showHeader = true }:
 
   return (
     <ScrollArea>
-      <Table striped highlightOnHover mt="xl" withTableBorder withColumnBorders>
+      <Table
+        striped
+        highlightOnHover
+        mt="xl"
+        withTableBorder
+        withColumnBorders
+        style={{
+          borderRadius: 8,
+          overflow: 'hidden',
+          border: '1px solid var(--mantine-color-green-9)',
+        }}
+      >
         {showHeader && (
           <Table.Thead
             style={{
@@ -92,23 +103,24 @@ export function TabelaResultadoPromocao({ precomputedMeses, showHeader = true }:
               color: 'white',
               fontWeight: 600,
               fontSize: '0.875rem',
+              letterSpacing: '0.5px',
             }}
           >
-            <Table.Tr ta="right">
+            <Table.Tr>
               <Table.Th>Mês</Table.Th>
-              <Table.Th>Salário</Table.Th>
-              <Table.Th>Salário Novo</Table.Th>
-              <Table.Th>Diferença Nominal</Table.Th>
+              <Table.Th style={{ minWidth: 120 }}>Salário Atual</Table.Th>
+              <Table.Th style={{ minWidth: 120 }}>Salário Novo</Table.Th>
+              <Table.Th style={{ minWidth: 120 }}>Diferença Nominal</Table.Th>
 
               {/* Novas colunas demonstrativas adicionadas sem alterar o restante do layout */}
-              <Table.Th>Índice Mensal</Table.Th>
-              <Table.Th>Coeficiente (até hoje)</Table.Th>
-              <Table.Th>Valor Atualizado</Table.Th>
+              <Table.Th style={{ minWidth: 120 }}>Índice Mensal</Table.Th>
+              <Table.Th style={{ minWidth: 140 }}>Coeficiente (até hoje)</Table.Th>
+              <Table.Th style={{ minWidth: 140 }}>Valor Atualizado</Table.Th>
             </Table.Tr>
           </Table.Thead>
         )}
 
-        <Table.Tbody>
+        <tbody>
           {rows.length === 0 ? (
             <Table.Tr>
               <Table.Td colSpan={8}>
@@ -119,7 +131,7 @@ export function TabelaResultadoPromocao({ precomputedMeses, showHeader = true }:
             </Table.Tr>
           ) : (
             rows.map((r, i) => (
-              <Table.Tr key={r.mesLabel + i} ta="right">
+              <Table.Tr key={r.mesLabel + i}>
                 <Table.Td>
                   <Text fw={600}>{r.mesLabel}</Text>
                 </Table.Td>
@@ -134,25 +146,23 @@ export function TabelaResultadoPromocao({ precomputedMeses, showHeader = true }:
               </Table.Tr>
             ))
           )}
-        </Table.Tbody>
+        </tbody>
 
         {rows.length > 0 && (
-          <Table.Tfoot bg="gray.5">
-            <Table.Tr ta="right">
-              <Table.Td colSpan={3}>
-                <Text ta="start" fw={800}>
-                  Totais
-                </Text>
-              </Table.Td>
+          <Table.Tfoot>
+            <Table.Tr>
+              <Table.Td colSpan={3} />
               <Table.Td>
                 <Text fw={800}>{formatCurrency(totalNominal)}</Text>
               </Table.Td>
-              <Table.Td colSpan={2} />
+              <Table.Td />
+              <Table.Td />
               <Table.Td>
-                <Text fw={800} c="green.9">
+                <Text fw={800} c="teal.8">
                   {formatCurrency(totalAtualizado)}
                 </Text>
               </Table.Td>
+              <Table.Td />
             </Table.Tr>
           </Table.Tfoot>
         )}
